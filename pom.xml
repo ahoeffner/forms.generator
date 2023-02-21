@@ -56,7 +56,7 @@
           </includes>
           <archive>
             <manifest>
-              <mainClass>database.js.control.Launcher</mainClass>
+              <mainClass>generator.Generator</mainClass>
             </manifest>
             <addMavenDescriptor>false</addMavenDescriptor>
           </archive>
