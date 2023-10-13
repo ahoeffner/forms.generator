@@ -1,15 +1,117 @@
 package generator;
 
+import java.net.URL;
+import java.io.ByteArrayOutputStream;
+import java.io.File;
+import org.jsoup.Jsoup;
+import java.nio.file.Path;
+import java.io.FileInputStream;
+import org.jsoup.nodes.Document;
+
 public class Generator
 {
-  public static void main(String[] args)
-  {
-    System.out.println("Hello xx");
-    Generator generator = new Generator();
-  }
+	public static final String path = findAppHome();
+	public static final String templates = path + File.separator + "templates";
+
+	public static void main(String[] args) throws Exception
+	{
+		String pos = path + "/generator/project/templates/";
+		Generator generator = new Generator(pos+"table.html");
+	}
 
 
-  public Generator()
-  {
-  }
+	public Generator(String file) throws Exception
+	{
+		String templ = load(file);
+		Document doc = Jsoup.parse(templ);
+		System.out.println(doc);
+	}
+
+
+	public String load(String file) throws Exception
+	{
+		int read = 0;
+		byte[] buf = new byte[4096];
+		FileInputStream in = new FileInputStream(file);
+		ByteArrayOutputStream out = new ByteArrayOutputStream();
+
+		while(read >= 0)
+		{
+			out.write(buf,0,read);
+			read = in.read(buf);
+		}
+
+		return(new String(out.toByteArray()));
+	}
+
+
+	private static String findAppHome()
+	{
+		String sep = File.separator;
+		Object obj = new Object() { };
+
+		String cname = obj.getClass().getEnclosingClass().getName();
+		cname = "/" + cname.replace('.','/') + ".class";
+
+		URL url = obj.getClass().getResource(cname);
+		String path = url.getPath();
+
+		if (url.getProtocol().equals("jar") || url.getProtocol().equals("code-source"))
+		{
+			path = path.substring(5); // get rid of "file:"
+			path = path.substring(0,path.indexOf("!")); // get rid of "!class"
+			path = path.substring(0,path.lastIndexOf("/")); // get rid jarname
+		}
+		else
+		{
+			path = path.substring(0,path.length()-cname.length());
+			if (path.endsWith("/classes")) path = path.substring(0,path.length()-8);
+			if (path.endsWith("/target")) path = path.substring(0,path.length()-7);
+		}
+
+		String escape = "\\";
+		if (sep.equals(escape))
+		{
+			// Windows
+			if (path.startsWith("/") && path.charAt(2) == ':')
+			path = path.substring(1);
+
+			path = path.replaceAll("/",escape+sep);
+		}
+
+		File cw = new File(".");
+		Path abs = java.nio.file.Paths.get(path);
+		Path base = java.nio.file.Paths.get(cw.getAbsolutePath());
+		path = base.relativize(abs).toString();
+
+		// Back until conf folder
+
+		while(true)
+		{
+			String conf = path+sep+"conf";
+
+			File test = new File(conf);
+			if (test.exists()) break;
+
+			int pos = path.lastIndexOf(sep);
+
+			if (pos < 0)
+			{
+				path = base.toString();
+				path = path.substring(0,path.length()-2);
+				break;
+			}
+
+			path = path.substring(0,pos);
+		}
+
+		if (path.startsWith("."))
+		{
+			path = cw.getAbsolutePath() + sep + path;
+			abs = java.nio.file.Paths.get(path).normalize();
+			path = abs.toString();
+		}
+
+		return(path);
+	}
 }
