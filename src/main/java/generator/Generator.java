@@ -1,47 +1,38 @@
 package generator;
 
 import java.net.URL;
-import java.io.ByteArrayOutputStream;
 import java.io.File;
-import org.jsoup.Jsoup;
+import java.util.List;
 import java.nio.file.Path;
-import java.io.FileInputStream;
+import org.json.JSONArray;
+import org.json.JSONObject;
+import org.jsoup.nodes.Node;
 import org.jsoup.nodes.Document;
+import org.jsoup.select.Elements;
+
 
 public class Generator
 {
 	public static final String path = findAppHome();
-	public static final String templates = path + File.separator + "templates";
+	public static final String templates = path + File.separator + "templates" + File.separator;
+	public static final Config config = new Config(path + File.separator + "conf"  + File.separator + "config.json");
 
 	public static void main(String[] args) throws Exception
 	{
-		String pos = path + "/generator/project/templates/";
-		Generator generator = new Generator(pos+"table.html");
+		String table = "employees";
+
+		Generator generator = new Generator(templates+"table.html");
+
+		Database database = new Database(config);
+		database.describe(table);
+
+		Template template = new Template("table");
+		template.load();
 	}
 
 
 	public Generator(String file) throws Exception
 	{
-		String templ = load(file);
-		Document doc = Jsoup.parse(templ);
-		System.out.println(doc);
-	}
-
-
-	public String load(String file) throws Exception
-	{
-		int read = 0;
-		byte[] buf = new byte[4096];
-		FileInputStream in = new FileInputStream(file);
-		ByteArrayOutputStream out = new ByteArrayOutputStream();
-
-		while(read >= 0)
-		{
-			out.write(buf,0,read);
-			read = in.read(buf);
-		}
-
-		return(new String(out.toByteArray()));
 	}
 
 
@@ -61,6 +52,9 @@ public class Generator
 			path = path.substring(5); // get rid of "file:"
 			path = path.substring(0,path.indexOf("!")); // get rid of "!class"
 			path = path.substring(0,path.lastIndexOf("/")); // get rid jarname
+
+			if (path.endsWith("/target")) path = path.substring(0,path.length()-7);
+			if (path.endsWith("/project")) path = path.substring(0,path.length()-8);
 		}
 		else
 		{
