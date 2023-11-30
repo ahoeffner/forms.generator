@@ -37,9 +37,17 @@ public class Template
 		extractColumnInfo(table);
 
 		Node[] cols = createFieldNodes();
-		Document doc = new Document("base");
-		for (Node col : cols) doc.appendChild(col);
 
+		Document doc = new Document("");
+		Element html = new Element("html");
+		Element body = new Element("body");
+
+		doc.appendChild(html);
+		html.appendChild(body);
+
+		for (Node col : cols) body.appendChild(col);
+
+		doc.outputSettings().indentAmount(2);
 		System.out.println(doc);
 	}
 
