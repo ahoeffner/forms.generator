@@ -2,13 +2,7 @@ package generator;
 
 import java.net.URL;
 import java.io.File;
-import java.util.List;
 import java.nio.file.Path;
-import org.json.JSONArray;
-import org.json.JSONObject;
-import org.jsoup.nodes.Node;
-import org.jsoup.nodes.Document;
-import org.jsoup.select.Elements;
 
 
 public class Generator
@@ -19,20 +13,13 @@ public class Generator
 
 	public static void main(String[] args) throws Exception
 	{
-		String table = "employees";
+		String tab = "employees";
+		String tpl = "table.html";
 
-		Generator generator = new Generator(templates+"table.html");
+		Table table = new Table(config,tab);
+		Template template = new Template(tpl);
 
-		Database database = new Database(config);
-		database.describe(table);
-
-		Template template = new Template("table");
-		template.load();
-	}
-
-
-	public Generator(String file) throws Exception
-	{
+		template.merge(table);
 	}
 
 

@@ -10,19 +10,55 @@ import java.net.http.HttpResponse;
 import java.net.http.HttpRequest.BodyPublisher;
 
 
-public class Database
+public class Table
 {
 	private Config config;
-	public Column[] columns;
+	private JSONObject def;
+	private Column[] columns;
 
 
-	public Database(Config config)
+	public Table(Config config, String table) throws Exception
 	{
 		this.config = config;
+		this.describe(table);
 	}
 
 
-	public void describe(String table) throws Exception
+	public Column[] columns()
+	{
+		return(this.columns);
+	}
+
+
+	public JSONObject definition()
+	{
+		return(def);
+	}
+
+
+	private void merge(String table)
+	{
+		// Merge with existing
+		JSONArray map = new JSONArray();
+		JSONObject def = new JSONObject();
+
+		def.put("from",table);
+		def.put("mapping",map);
+
+		for (int i = 0; i < columns.length; i++)
+		{
+			JSONObject entry = new JSONObject();
+			entry.put("size",this.columns[i].size);
+			entry.put("name",this.columns[i].name.toLowerCase());
+			entry.put("type",this.columns[i].jtype(config.mapper));
+			map.put(entry);
+		}
+
+		this.def = def;
+	}
+
+
+	private void describe(String table) throws Exception
 	{
 		String data =
 		"{\n"+
@@ -71,7 +107,7 @@ public class Database
 		JSONArray prcs = json.getJSONArray("precision");
 
 		String[] columns = new String[cols.length()];
-		for (int i = 0; i < cols.length(); i++) columns[i] = cols.getString(i);
+		for (int i = 0; i < cols.length(); i++) columns[i] = cols.getString(i).toLowerCase();
 
 		String[] types = new String[typs.length()];
 		for (int i = 0; i < typs.length(); i++) types[i] = typs.getString(i).toLowerCase();
@@ -91,19 +127,6 @@ public class Database
 		for (int i = 0; i < this.columns.length; i++)
 			this.columns[i] = new Column(columns[i],types[i],precision[i][0],precision[i][1]);
 
-		JSONArray map = new JSONArray();
-		JSONObject def = new JSONObject();
-
-		def.put("from",table);
-		def.put("mapping",map);
-
-		for (int i = 0; i < columns.length; i++)
-		{
-			JSONObject entry = new JSONObject();
-			entry.put("name",this.columns[i].name);
-			entry.put("size",this.columns[i].size);
-			entry.put("type",this.columns[i].jtype(config.mapper));
-			map.put(entry);
-		}
+		merge(table);
 	}
 }

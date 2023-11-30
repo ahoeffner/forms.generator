@@ -7,16 +7,18 @@ public class Field
 {
 	public Node node;
 
+
 	public Field(Node node)
 	{
 		this.node = node;
-		System.out.println(node);
-	}
 
-	public Node merge(Column column)
-	{
-		Node node = this.node.clone();
-
-		return(node);
+		for (Node child : node.childNodes())
+		{
+			if (!child.nodeName().equals("#text"))
+			{
+				this.node = child;
+				break;
+			}
+		}
 	}
 }
