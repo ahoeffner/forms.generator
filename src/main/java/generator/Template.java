@@ -84,9 +84,18 @@ public class Template
 
 		for (Attribute attr : attrs)
 		{
+			String name = attr.getKey();
 			String value = attr.getValue();
+
 			value = replace(value,colattrs);
 			attr.setValue(value);
+
+			if (name.indexOf("$") >= 0)
+			{
+				String key = replace(name,colattrs);
+				node.attributes().remove(name);
+				node.attributes().put(key,value);
+			}
 		}
 
 		List<Node> childs = node.childNodes();
@@ -118,6 +127,9 @@ public class Template
 		int pos1 = 0;
 		int pos2 = 0;
 
+		if (value == null)
+			value = "";
+
 		while(pos1 < value.length())
 		{
 			pos1 = value.indexOf("$",pos1);
@@ -142,7 +154,7 @@ public class Template
 			}
 		}
 
-		return(value);
+		return(value.trim());
 	}
 
 
