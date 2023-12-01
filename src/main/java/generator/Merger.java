@@ -3,25 +3,24 @@ package generator;
 import java.util.HashMap;
 import java.util.ArrayList;
 import org.jsoup.nodes.Node;
-import org.jsoup.nodes.Attribute;
 import org.jsoup.nodes.Element;
-import org.jsoup.nodes.TextNode;
 import org.jsoup.select.Elements;
 
 
 public class Merger
 {
+	private String column;
 	private Template template;
-
-	public Merger()
-	{
-
-	}
 
 	public Node merge(Template template, Element section)
 	{
 		this.template = template;
+		return(merge(section));
+	}
 
+
+	private Node merge(Element section)
+	{
 		boolean done = false;
 		Element node = section.clone();
 
@@ -34,11 +33,19 @@ public class Merger
 			{
 				Element elem = elements.get(i);
 
+				if (elem.tagName().equals(Generator.COLUMN))
+				{
+					column(elem);
+					done = false;
+				}
+
+				else
+
 				if (elem.attributes().hasKey(Generator.COLUMNS))
 				{
 					elem.attributes().remove(Generator.COLUMNS);
 					columns(elem);
-					done = true;
+					done = false;
 				}
 
 				if (!done)
@@ -47,13 +54,20 @@ public class Merger
 		}
 
 		return(node);
+
+	}
+
+
+	private void column(Element elem)
+	{
+		System.out.println(elem+" "+this.column);
 	}
 
 
 	private void columns(Element elem)
 	{
-		Node merged = null;
-		Node template = null;
+		Element merged = null;
+		Element template = null;
 		HashMap<String,Object> colattrs = null;
 
 		template = elem.clone();
@@ -61,11 +75,15 @@ public class Merger
 
 		for (String name : this.template.columns)
 		{
+			this.column = name;
 			colattrs = this.template.colattrs.get(name);
 
-			Node replace = template.clone();
+			Element replace = template.clone();
 			this.template.replace(replace,colattrs);
-			((Element) merged).appendChild(replace);
+			System.out.println(replace);
+			merged.appendChild(replace);
+			this.merge(replace);
+			this.column = null;
 		}
 
 		if (merged.childNodes().size() == 0)
