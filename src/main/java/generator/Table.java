@@ -25,6 +25,7 @@ public class Table
 		this.config = config;
 
       Utils.delete(this.file);
+      System.out.println("deleting file");
       String existing = Utils.load(this.file,true);
 		if (existing != null) this.def = new JSONObject(existing);
 
