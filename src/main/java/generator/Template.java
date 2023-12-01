@@ -87,14 +87,20 @@ public class Template
 			String name = attr.getKey();
 			String value = attr.getValue();
 
-			value = replace(value,colattrs);
-			attr.setValue(value);
 
-			if (name.indexOf("$") >= 0)
+			if (isVariable(name))
 			{
-				String key = replace(name,colattrs);
 				node.attributes().remove(name);
-				node.attributes().put(key,value);
+
+				value = replace(name,colattrs);
+				name = name.replaceAll("\\$","");
+
+				node.attributes().put(name,value);
+			}
+			else
+			{
+				value = replace(value,colattrs);
+				attr.setValue(value);
 			}
 		}
 
@@ -211,6 +217,22 @@ public class Template
 				}
 			}
 		}
+	}
+
+
+	private boolean isVariable(String var)
+	{
+		var = var.trim();
+
+		if (var.startsWith("$") && var.endsWith("$"))
+		{
+			for (int i = 1; i < var.length()-1; i++)
+				if (var.charAt(i) == '$') return(false);
+
+			return(true);
+		}
+
+		return(false);
 	}
 
 
