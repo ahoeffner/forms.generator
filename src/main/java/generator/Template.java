@@ -16,22 +16,22 @@ import org.jsoup.select.Elements;
 
 public class Template
 {
-	public String file;
-	public Document dom;
-	public ArrayList<Element> sections;
-	public HashMap<String,Field> fields;
-	public HashMap<String,Object> tabattrs;
-	public HashMap<String,Node> fieldnodes;
-	public HashMap<String,HashMap<String,Object>> colattrs;
+	public final Document dom;
+	public final ArrayList<String> columns;
+	public final ArrayList<Element> sections;
+	public final HashMap<String,Field> fields;
+	public final HashMap<String,Object> tabattrs;
+	public final HashMap<String,Node> fieldnodes;
+	public final HashMap<String,HashMap<String,Object>> colattrs;
 
 	public Template(String file) throws Exception
 	{
-		this.load(file);
-
+		this.dom 			= this.load(file);
+		this.columns		= new ArrayList<String>();
 	 	this.sections 		= new ArrayList<Element>();
+		this.fieldnodes 	= new HashMap<String,Node>();
 		this.fields 		= new HashMap<String,Field>();
 		this.tabattrs 		= new HashMap<String,Object>();
-		this.fieldnodes 	= new HashMap<String,Node>();
 		this.colattrs 		= new HashMap<String,HashMap<String,Object>>();
 	}
 
@@ -64,20 +64,8 @@ public class Template
 				body.appendChild(new TextNode("",""));
 		}
 
-		for (Element section : sections)
-		{
-			Merger merger = new Merger();
-			Node merged = merger.merge(this,section);
-
-			body.appendChild(merged);
-		}
-
-
-		for (Node col : fieldnodes.values())
-			body.appendChild(col);
-
 		doc.outputSettings().indentAmount(2);
-		//System.out.println(doc);
+		System.out.println(doc);
 	}
 
 
@@ -85,7 +73,7 @@ public class Template
 	{
 		HashMap<String,Object> colattrs = null;
 
-		for (String name : this.colattrs.keySet())
+		for (String name : this.columns)
 		{
 			colattrs = this.colattrs.get(name);
 			String type = (String) colattrs.get("type");
@@ -105,7 +93,7 @@ public class Template
 	}
 
 
-	private void replace(Node node, HashMap<String,Object> colattrs)
+	public void replace(Node node, HashMap<String,Object> colattrs)
 	{
 		List<Attribute> attrs = node.attributes().asList();
 
@@ -113,7 +101,6 @@ public class Template
 		{
 			String name = attr.getKey();
 			String value = attr.getValue();
-
 
 			if (isVariable(name))
 			{
@@ -158,7 +145,7 @@ public class Template
 	}
 
 
-	private String replace(String value, HashMap<String,Object> colattrs)
+	public String replace(String value, HashMap<String,Object> colattrs)
 	{
 		int pos1 = 0;
 		int pos2 = 0;
@@ -214,10 +201,11 @@ public class Template
 		{
 			JSONObject coldef = columns.getJSONObject(i);
 			String[] entries = JSONObject.getNames(coldef);
+			String name = coldef.getString("name").toLowerCase();
 			HashMap<String,Object> colattrs = new HashMap<String,Object>();
 			for (String entry : entries) colattrs.put(entry.toLowerCase(),coldef.get(entry));
 
-			String name = coldef.getString("name").toLowerCase();
+			this.columns.add(name);
 			this.colattrs.put(name,colattrs);
 		}
 	}
@@ -256,7 +244,7 @@ public class Template
 		{
 			Element elem = elements.get(i);
 
-			if (!elem.tagName().equals("columns"))
+			if (!elem.tagName().equals("column-types"))
 				sections.add(elem);
 		}
 	}
@@ -278,10 +266,9 @@ public class Template
 	}
 
 
-	private void load(String file) throws Exception
+	private Document load(String file) throws Exception
 	{
-		this.file = file;
-		file = Generator.templates+this.file;
-		this.dom = Jsoup.parse(Utils.load(file,false));
+		file = Generator.templates+file;
+		return(Jsoup.parse(Utils.load(file,false)));
 	}
 }

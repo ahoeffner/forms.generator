@@ -7,6 +7,8 @@ import java.nio.file.Path;
 
 public class Generator
 {
+	public static final String COLUMNS = "foreach-column";
+	
 	public static final String path = findAppHome();
 	public static final String output = path + File.separator + "html" + File.separator;
 	public static final String tables = path + File.separator + "tables" + File.separator;
