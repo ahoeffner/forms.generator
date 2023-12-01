@@ -1,6 +1,7 @@
 package generator;
 
 import java.net.URI;
+import java.util.HashSet;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
@@ -12,6 +13,7 @@ import java.net.http.HttpRequest.BodyPublisher;
 
 public class Table
 {
+	private String file;
 	private Config config;
 	private JSONObject def;
 	private Column[] columns;
@@ -19,6 +21,7 @@ public class Table
 
 	public Table(Config config, String table) throws Exception
 	{
+		this.file = Generator.tables + table.toLowerCase() + ".json";
 		this.config = config;
 		this.describe(table);
 	}
@@ -36,24 +39,46 @@ public class Table
 	}
 
 
-	private void merge(String table)
+	private void merge(String table) throws Exception
 	{
-		// Merge with existing
-		JSONArray map = new JSONArray();
-		JSONObject def = new JSONObject();
+		JSONArray map = null;
+		JSONObject def = null;
+		HashSet<String> ignore = new HashSet<String>();
 
-		def.put("from",table);
-		def.put("mapping",map);
+		// Merge with existing
+		String existing = Utils.load(this.file,true);
+
+		if (existing == null)
+		{
+			map = new JSONArray();
+			def = new JSONObject();
+
+			def.put("from",table);
+			def.put("mapping",map);
+		}
+		else
+		{
+			def = new JSONObject(existing);
+			map = def.getJSONArray("mapping");
+
+			for (int i = 0; i < map.length(); i++)
+				ignore.add(map.getJSONObject(i).getString("name"));
+		}
 
 		for (int i = 0; i < columns.length; i++)
 		{
-			JSONObject entry = new JSONObject();
-			entry.put("size",this.columns[i].size);
-			entry.put("name",this.columns[i].name.toLowerCase());
-			entry.put("type",this.columns[i].jtype(config.mapper));
-			map.put(entry);
+			if (!ignore.contains(this.columns[i].name.toLowerCase()))
+			{
+				JSONObject entry = new JSONObject();
+				entry.put("size",this.columns[i].size);
+				entry.put("name",this.columns[i].name.toLowerCase());
+				entry.put("type",this.columns[i].jtype(config.mapper));
+				entry.put("label",initcap(this.columns[i].name));
+				map.put(entry);
+			}
 		}
 
+		Utils.save(def.toString(2),this.file);
 		this.def = def;
 	}
 
@@ -128,5 +153,11 @@ public class Table
 			this.columns[i] = new Column(columns[i],types[i],precision[i][0],precision[i][1]);
 
 		merge(table);
+	}
+
+
+	private String initcap(String str)
+	{
+		return(str.substring(0,1).toUpperCase()+str.substring(1).toLowerCase());
 	}
 }

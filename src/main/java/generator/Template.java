@@ -1,18 +1,15 @@
 package generator;
 
 import java.util.List;
-
-import javax.swing.text.html.HTMLDocument;
-
 import org.jsoup.Jsoup;
 import java.util.HashMap;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import org.jsoup.nodes.Node;
-import org.jsoup.nodes.TextNode;
-import org.jsoup.nodes.Attribute;
-import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
+import org.jsoup.nodes.TextNode;
+import org.jsoup.nodes.Document;
+import org.jsoup.nodes.Attribute;
 import org.jsoup.select.Elements;
 
 
@@ -91,11 +88,14 @@ public class Template
 			if (isVariable(name))
 			{
 				node.attributes().remove(name);
-
 				value = replace(name,colattrs);
-				name = name.replaceAll("\\$","");
 
-				node.attributes().put(name,value);
+				// var existed
+				if (!value.equals(name))
+				{
+					name = name.replaceAll("\\$","");
+					node.attributes().put(name,value);
+				}
 			}
 			else
 			{
@@ -243,6 +243,6 @@ public class Template
 		file = Generator.templates+this.file;
 		fields = new HashMap<String,Field>();
 
-		this.dom = Jsoup.parse(Utils.load(file));
+		this.dom = Jsoup.parse(Utils.load(file,false));
 	}
 }
