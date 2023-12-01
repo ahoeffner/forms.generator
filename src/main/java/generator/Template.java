@@ -61,7 +61,7 @@ public class Template
 			body.appendChild(merged);
 		}
 
-		doc.outputSettings().indentAmount(2).prettyPrint(true).outline(true);
+		doc.outputSettings().indentAmount(2).outline(true);
 		System.out.println(doc);
 	}
 

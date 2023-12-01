@@ -63,7 +63,8 @@ public class Merger
 
 	private void column(Element elem)
 	{
-		Node field = template.fieldnodes.get(column);
+		Node field = template.fieldnodes.get(column).clone();
+		field.attributes().addAll(elem.attributes());
 		this.replace(elem,field);
 	}
 

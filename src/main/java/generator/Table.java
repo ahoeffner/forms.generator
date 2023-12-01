@@ -24,8 +24,8 @@ public class Table
 		this.file = Generator.tables + table.toLowerCase() + ".json";
 		this.config = config;
 
-		Utils.delete(this.file);
-		String existing = Utils.load(this.file,true);
+      Utils.delete(this.file);
+      String existing = Utils.load(this.file,true);
 		if (existing != null) this.def = new JSONObject(existing);
 
 		if (update)
@@ -80,6 +80,7 @@ public class Table
 				entry.put("name",this.columns[i].name.toLowerCase());
 				entry.put("type",this.columns[i].jtype(config.mapper));
 				entry.put("label",initcap(this.columns[i].name));
+				entry.put("abbr",this.columns[i].shrt);
 				map.put(entry);
 			}
 		}
