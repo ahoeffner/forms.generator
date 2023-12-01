@@ -16,13 +16,13 @@ import org.jsoup.select.Elements;
 
 public class Template
 {
-	private String file;
-	private Document dom;
-	private ArrayList<Element> sections;
-	private HashMap<String,Field> fields;
-	private HashMap<String,Object> tabattrs;
-	private HashMap<String,Node> fieldnodes;
-	private HashMap<String,HashMap<String,Object>> colattrs;
+	public String file;
+	public Document dom;
+	public ArrayList<Element> sections;
+	public HashMap<String,Field> fields;
+	public HashMap<String,Object> tabattrs;
+	public HashMap<String,Node> fieldnodes;
+	public HashMap<String,HashMap<String,Object>> colattrs;
 
 	public Template(String file) throws Exception
 	{
@@ -45,15 +45,33 @@ public class Template
 
 		createFieldNodes();
 
-		for (Element section : sections)
-			mergeTemplates(section);
-
 		Document doc = new Document("");
 		Element html = new Element("html");
 		Element body = new Element("body");
 
 		doc.appendChild(html);
 		html.appendChild(body);
+
+		for (int i = 0; i < sections.size(); i++)
+		{
+			Merger merger = new Merger();
+			Element section = sections.get(i);
+			Node merged = merger.merge(this,section);
+
+			body.appendChild(merged);
+
+			if (i <  sections.size() - 1)
+				body.appendChild(new TextNode("",""));
+		}
+
+		for (Element section : sections)
+		{
+			Merger merger = new Merger();
+			Node merged = merger.merge(this,section);
+
+			body.appendChild(merged);
+		}
+
 
 		for (Node col : fieldnodes.values())
 			body.appendChild(col);
@@ -207,11 +225,11 @@ public class Template
 
 	private void extractFieldTags()
 	{
-		Elements sections = dom.getElementsByTag("columns");
+		Elements sections = dom.getElementsByTag("column-types");
 
 		for (int i = 0; i < sections.size(); i++)
 		{
-			Elements element = sections.get(i).getElementsByTag("column");
+			Elements element = sections.get(i).getElementsByTag("column-type");
 
 			for (int j = 0; j < element.size(); j++)
 			{
@@ -241,13 +259,6 @@ public class Template
 			if (!elem.tagName().equals("columns"))
 				sections.add(elem);
 		}
-	}
-
-
-	private void mergeTemplates(Element elem)
-	{
-		if (elem.tagName().equals("elem"));
-
 	}
 
 
