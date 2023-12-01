@@ -59,12 +59,9 @@ public class Template
 			Node merged = merger.merge(this,section);
 
 			body.appendChild(merged);
-
-			if (i <  sections.size() - 1)
-				body.appendChild(new TextNode("",""));
 		}
 
-		doc.outputSettings().indentAmount(2);
+		doc.outputSettings().indentAmount(2).prettyPrint(true).outline(true);
 		System.out.println(doc);
 	}
 
