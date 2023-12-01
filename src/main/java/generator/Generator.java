@@ -32,9 +32,10 @@ public class Generator
 
 		if (len < 1 || len > 2)
 		{
-			System.out.println("Use [options] generate table [template]");
 			System.out.println();
-			System.out.println("options :");
+			System.out.println("Usage: generate [options] table [template]");
+			System.out.println();
+			System.out.println("options:");
 			System.out.println("         -du | --disable-update : do not update table definition");
 			System.out.println();
 			System.exit(-1);
