@@ -8,12 +8,22 @@ import java.io.ByteArrayOutputStream;
 
 public class Utils
 {
+	public static boolean delete(String file) throws Exception
+	{
+		return((new File(file)).delete());
+	}
+
+	public static boolean exists(String file) throws Exception
+	{
+		return((new File(file)).exists());
+	}
+
 	public static String load(String file, boolean check) throws Exception
 	{
 		if (check)
 		{
-			File chkf = new File(file);
-			if (!chkf.exists()) return(null);
+			if (!exists(file))
+				return(null);
 		}
 
 		int read = 0;

@@ -18,6 +18,24 @@ public class Config
 		JSONObject config = null;
 		this.mapper = new HashMap<String,String>();
 
+		this.mapper.put("string","string");
+		this.mapper.put("varchar","string");
+		this.mapper.put("varchar2","string");
+
+		this.mapper.put("date","date");
+		this.mapper.put("datetime","date");
+
+		this.mapper.put("int","integer");
+		this.mapper.put("short","integer");
+		this.mapper.put("integer","integer");
+		this.mapper.put("smallint","integer");
+
+		this.mapper.put("float","decimal");
+		this.mapper.put("double","decimal");
+
+		this.mapper.put("number","number*");
+		this.mapper.put("numeric","number*");
+
 		try
 		{
 			FileInputStream in = new FileInputStream(conf);

@@ -19,11 +19,20 @@ public class Table
 	private Column[] columns;
 
 
-	public Table(Config config, String table) throws Exception
+	public Table(Config config, String table, boolean update) throws Exception
 	{
 		this.file = Generator.tables + table.toLowerCase() + ".json";
 		this.config = config;
-		this.describe(table);
+
+		Utils.delete(this.file);
+		String existing = Utils.load(this.file,true);
+		if (existing != null) this.def = new JSONObject(existing);
+
+		if (update)
+		{
+			this.describe(table);
+			this.merge(table);
+		}
 	}
 
 
@@ -45,10 +54,7 @@ public class Table
 		JSONObject def = null;
 		HashSet<String> ignore = new HashSet<String>();
 
-		// Merge with existing
-		String existing = Utils.load(this.file,true);
-
-		if (existing == null)
+		if (this.def == null)
 		{
 			map = new JSONArray();
 			def = new JSONObject();
@@ -58,7 +64,7 @@ public class Table
 		}
 		else
 		{
-			def = new JSONObject(existing);
+			def = this.def;
 			map = def.getJSONArray("mapping");
 
 			for (int i = 0; i < map.length(); i++)
@@ -151,13 +157,27 @@ public class Table
 
 		for (int i = 0; i < this.columns.length; i++)
 			this.columns[i] = new Column(columns[i],types[i],precision[i][0],precision[i][1]);
-
-		merge(table);
 	}
 
 
 	private String initcap(String str)
 	{
-		return(str.substring(0,1).toUpperCase()+str.substring(1).toLowerCase());
+		str = str.trim();
+
+		str = str.substring(0,1).toUpperCase()+
+				str.substring(1).toLowerCase();
+
+		int pos = str.indexOf('_');
+
+		while (pos > 0)
+		{
+			str = str.substring(0,pos)+" "+
+					str.substring(pos+1,pos+2).toUpperCase()+
+					str.substring(pos+2);
+
+			pos = str.indexOf('_',pos+3);
+		}
+
+		return(str);
 	}
 }

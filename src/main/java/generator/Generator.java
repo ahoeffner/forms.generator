@@ -15,12 +15,43 @@ public class Generator
 
 	public static void main(String[] args) throws Exception
 	{
-		String tab = "employees";
-		String tpl = "table.html";
+		int len = args.length;
+		boolean update = true;
 
-		Table table = new Table(config,tab);
+		for (int i = 0; i < len; i++)
+		{
+			if (args[i].equals("-du") || args[i].equals("--disable-update"))
+			{
+				len--;
+				update = false;
+
+				for (int j = i; j < args.length; j++)
+					args[j] = j < args.length - 1 ? args[j+1] : null;
+			}
+		}
+
+		if (len < 1 || len > 2)
+		{
+			System.out.println("Use [options] generate table [template]");
+			System.out.println();
+			System.out.println("options :");
+			System.out.println("         -du | --disable-update : do not update table definition");
+			System.out.println();
+			System.exit(-1);
+		}
+
+		String tab = args[0];
+		String tpl = len > 1 ? args[1] : "default";
+
+		if (!tpl.endsWith(".html"))
+			tpl += ".html";
+
+		Table table = new Table(config,tab,update);
+
+		if (table.definition() == null)
+			throw new Exception("No definition found for "+tab);
+
 		Template template = new Template(tpl);
-
 		template.merge(table);
 	}
 

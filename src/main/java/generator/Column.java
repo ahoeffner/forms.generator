@@ -21,9 +21,14 @@ public class Column
 	public String jtype(HashMap<String,String> map)
 	{
 		String type = map.get(this.type);
-		if (type == null) type = "string";
 
-		if (type.endsWith("*"))
+		if (type == null)
+		{
+			System.out.println("No mapping for datatype '"+this.type+"'. Add mapping in config");
+			type = "string";
+		}
+
+		if (type.equals("number*"))
 		{
 			type = "integer";
 			if (scale > 0) type = "decimal";

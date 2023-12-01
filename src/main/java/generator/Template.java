@@ -5,6 +5,7 @@ import org.jsoup.Jsoup;
 import java.util.HashMap;
 import org.json.JSONArray;
 import org.json.JSONObject;
+import java.util.ArrayList;
 import org.jsoup.nodes.Node;
 import org.jsoup.nodes.Element;
 import org.jsoup.nodes.TextNode;
@@ -17,23 +18,35 @@ public class Template
 {
 	private String file;
 	private Document dom;
+	private ArrayList<Element> sections;
 	private HashMap<String,Field> fields;
 	private HashMap<String,Object> tabattrs;
+	private HashMap<String,Node> fieldnodes;
 	private HashMap<String,HashMap<String,Object>> colattrs;
 
 	public Template(String file) throws Exception
 	{
 		this.load(file);
+
+	 	this.sections 		= new ArrayList<Element>();
+		this.fields 		= new HashMap<String,Field>();
+		this.tabattrs 		= new HashMap<String,Object>();
+		this.fieldnodes 	= new HashMap<String,Node>();
+		this.colattrs 		= new HashMap<String,HashMap<String,Object>>();
 	}
 
 
 	public void merge(Table table)
 	{
 		extractFieldTags();
+		extractTemplates();
 		extractTableInfo(table);
 		extractColumnInfo(table);
 
-		Node[] cols = createFieldNodes();
+		createFieldNodes();
+
+		for (Element section : sections)
+			mergeTemplates(section);
 
 		Document doc = new Document("");
 		Element html = new Element("html");
@@ -42,18 +55,17 @@ public class Template
 		doc.appendChild(html);
 		html.appendChild(body);
 
-		for (Node col : cols) body.appendChild(col);
+		for (Node col : fieldnodes.values())
+			body.appendChild(col);
 
 		doc.outputSettings().indentAmount(2);
-		System.out.println(doc);
+		//System.out.println(doc);
 	}
 
 
-	private Node[] createFieldNodes()
+	private void createFieldNodes()
 	{
-		int col = 0;
 		HashMap<String,Object> colattrs = null;
-		Node[] nodes = new Node[this.colattrs.size()];
 
 		for (String name : this.colattrs.keySet())
 		{
@@ -67,11 +79,11 @@ public class Template
 				System.exit(-1);
 			}
 
-			nodes[col] = field.node.clone();
-			replace(nodes[col++],colattrs);
-		}
+			Node node = field.node.clone();
+			fieldnodes.put(name,node);
 
-		return(nodes);
+			replace(node,colattrs);
+		}
 	}
 
 
@@ -167,7 +179,6 @@ public class Template
 	private void extractTableInfo(Table table)
 	{
 		JSONObject tabdef = table.definition();
-		this.tabattrs = new HashMap<String,Object>();
 
 		String[] entries = JSONObject.getNames(tabdef);
 		for (String entry : entries)
@@ -179,7 +190,6 @@ public class Template
 
 	private void extractColumnInfo(Table table)
 	{
-		this.colattrs = new HashMap<String,HashMap<String,Object>>();
 		JSONArray columns = table.definition().getJSONArray("mapping");
 
 		for (int i = 0; i < columns.length(); i++)
@@ -220,6 +230,27 @@ public class Template
 	}
 
 
+	private void extractTemplates()
+	{
+		Elements elements = dom.body().children();
+
+		for (int i = 0; i < elements.size(); i++)
+		{
+			Element elem = elements.get(i);
+
+			if (!elem.tagName().equals("columns"))
+				sections.add(elem);
+		}
+	}
+
+
+	private void mergeTemplates(Element elem)
+	{
+		if (elem.tagName().equals("elem"));
+
+	}
+
+
 	private boolean isVariable(String var)
 	{
 		var = var.trim();
@@ -239,10 +270,7 @@ public class Template
 	private void load(String file) throws Exception
 	{
 		this.file = file;
-
 		file = Generator.templates+this.file;
-		fields = new HashMap<String,Field>();
-
 		this.dom = Jsoup.parse(Utils.load(file,false));
 	}
 }
