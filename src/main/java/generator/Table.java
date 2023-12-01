@@ -1,6 +1,7 @@
 package generator;
 
 import java.net.URI;
+import java.util.HashMap;
 import java.util.HashSet;
 import org.json.JSONArray;
 import org.json.JSONObject;
@@ -21,8 +22,8 @@ public class Table
 
 	public Table(Config config, String table, boolean update) throws Exception
 	{
-		this.file = Generator.tables + table.toLowerCase() + ".json";
 		this.config = config;
+		this.file = Generator.tables + table.toLowerCase() + ".json";
 
       Utils.delete(this.file);
       System.out.println("deleting file");
@@ -34,6 +35,8 @@ public class Table
 			this.describe(table);
 			this.merge(table);
 		}
+
+		IDFactory.create(this.def);
 	}
 
 
@@ -62,6 +65,7 @@ public class Table
 
 			def.put("from",table);
 			def.put("mapping",map);
+			def.put("abbr",Column.shortname(table));
 		}
 		else
 		{
@@ -181,5 +185,58 @@ public class Table
 		}
 
 		return(str);
+	}
+
+
+	public static class IDFactory
+	{
+		private static HashMap<String,Sequence> ids =
+			new HashMap<String,Sequence>();
+
+		public static void create(JSONObject def)
+		{
+			if (def == null) return;
+			JSONArray columns = def.getJSONArray("mapping");
+
+			for (int i = 0; i < columns.length(); i++)
+			{
+				JSONObject entry = columns.getJSONObject(i);
+				String name = entry.getString("name");
+				String abbr = entry.getString("abbr");
+				ids.put(name,new Sequence(abbr,0));
+			}
+		}
+
+		public static String next(String name)
+		{
+			Sequence seq = ids.get(name);
+			if (seq == null) return("unknown-column-"+name);
+
+			String id = seq.pref+"-"+seq.next;
+			seq.next++;
+			return(id);
+		}
+
+		public static String next(String name, int row)
+		{
+			Sequence seq = ids.get(name);
+			if (seq == null) return("unknown-column-"+name);
+
+			String id = seq.pref+"-"+seq.next+"."+row;
+			seq.next++;
+			return(id);
+		}
+
+		private static class Sequence
+		{
+			int next;
+			String pref;
+
+			Sequence(String pref, int next)
+			{
+				this.pref = pref;
+				this.next = next;
+			}
+		}
 	}
 }

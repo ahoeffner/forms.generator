@@ -39,7 +39,7 @@ public class Column
 		return(type);
 	}
 
-	private String shortname(String name)
+	public static String shortname(String name)
 	{
 		String shrt = null;
 

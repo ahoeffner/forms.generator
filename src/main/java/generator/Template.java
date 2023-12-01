@@ -13,6 +13,8 @@ import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Attribute;
 import org.jsoup.select.Elements;
 
+import generator.Table.IDFactory;
+
 
 public class Template
 {
@@ -98,6 +100,9 @@ public class Template
 		{
 			String name = attr.getKey();
 			String value = attr.getValue();
+
+			if (value.equals("$id$"))
+				value = IDFactory.next(colattrs.get("name").toString());
 
 			if (isVariable(name))
 			{
