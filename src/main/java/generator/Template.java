@@ -62,9 +62,21 @@ public class Template
 			body.appendChild(merged);
 		}
 
+
 		file = Generator.output + file;
 		doc.outputSettings().indentAmount(2).outline(true);
-		Utils.save(doc.toString(),file);
+
+		String page = doc.toString();
+
+		page = page.replaceAll(" derived=\"false\"","");
+		page = page.replaceAll(" readonly=\"false\"","");
+		page = page.replaceAll(" disabled=\"false\"","");
+
+		page = page.replaceAll(" derived=\"true\""," derived");
+		page = page.replaceAll(" readonly=\"true\""," readonly");
+		page = page.replaceAll(" disabled=\"false\""," disabled");
+
+		Utils.save(page,file);
 	}
 
 

@@ -74,6 +74,9 @@ public class Generator
 		if (!file.endsWith(".json"))
 			file += ".json";
 
+      //System.out.println("deleting file");
+      //Table.delete(file);
+
       if (!Table.exists(file))
          update = true;
 

@@ -26,13 +26,17 @@ public class Table
 	}
 
 
+	public static boolean delete(String file) throws Exception
+	{
+		return(Utils.delete(Generator.tables + file));
+	}
+
+
 	public Table(Config config, String table, String file, boolean update) throws Exception
 	{
 		this.config = config;
 		this.file = Generator.tables + file;
 
-      Utils.delete(this.file);
-      System.out.println("deleting file");
       String existing = Utils.load(this.file,true);
 		if (existing != null) this.def = new JSONObject(existing);
 
@@ -89,6 +93,7 @@ public class Table
 			{
 				JSONObject entry = new JSONObject();
 				entry.put("group",0);
+
 				entry.put("pkey",this.columns[i].pkey);
 				entry.put("excl",this.columns[i].pkey);
 				entry.put("size",this.columns[i].size);
@@ -96,6 +101,11 @@ public class Table
 				entry.put("type",this.columns[i].jtype(config.mapper));
 				entry.put("label",initcap(this.columns[i].name));
 				entry.put("abbr",this.columns[i].shrt);
+
+				entry.put("derived",false);
+				entry.put("readonly",false);
+				entry.put("disabled",false);
+
 				map.put(entry);
 			}
 		}
