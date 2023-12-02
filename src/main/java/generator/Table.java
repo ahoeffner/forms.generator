@@ -190,12 +190,17 @@ public class Table
 
 	public static class IDFactory
 	{
+		private static String alias;
+
 		private static HashMap<String,Sequence> ids =
 			new HashMap<String,Sequence>();
+
 
 		public static void create(JSONObject def)
 		{
 			if (def == null) return;
+
+			alias = def.getString("alias");
 			JSONArray columns = def.getJSONArray("mapping");
 
 			for (int i = 0; i < columns.length(); i++)
@@ -203,27 +208,29 @@ public class Table
 				JSONObject entry = columns.getJSONObject(i);
 				String name = entry.getString("name");
 				String abbr = entry.getString("abbr");
-				ids.put(name,new Sequence(abbr,0));
+				ids.put(name,new Sequence(abbr));
 			}
 		}
 
-		public static String next(String name)
+		public static String curr(Object name, boolean row)
 		{
 			Sequence seq = ids.get(name);
 			if (seq == null) return("unknown-column-"+name);
 
-			String id = seq.pref+"-"+seq.next;
-			seq.next++;
+			String id = alias+"."+seq.pref+"."+seq.next+".";
+			if (row) id += "$row"; else id += "0";
+
 			return(id);
 		}
 
-		public static String next(String name, int row)
+		public static String next(Object name, boolean row)
 		{
 			Sequence seq = ids.get(name);
 			if (seq == null) return("unknown-column-"+name);
 
-			String id = seq.pref+"-"+seq.next+"."+row;
-			seq.next++;
+			String id = alias+"."+seq.pref+"."+seq.next+".";
+			if (row) id += "$row"; else id += "0";
+
 			return(id);
 		}
 
@@ -232,10 +239,10 @@ public class Table
 			int next;
 			String pref;
 
-			Sequence(String pref, int next)
+			Sequence(String pref)
 			{
+				this.next = 0;
 				this.pref = pref;
-				this.next = next;
 			}
 		}
 	}

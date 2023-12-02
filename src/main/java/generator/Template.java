@@ -10,10 +10,9 @@ import org.jsoup.nodes.Node;
 import org.jsoup.nodes.Element;
 import org.jsoup.nodes.TextNode;
 import org.jsoup.nodes.Document;
+import generator.Table.IDFactory;
 import org.jsoup.nodes.Attribute;
 import org.jsoup.select.Elements;
-
-import generator.Table.IDFactory;
 
 
 public class Template
@@ -103,7 +102,14 @@ public class Template
 			String value = attr.getValue();
 
 			if (value.equals("$id$"))
-				value = IDFactory.next(colattrs.get("name").toString());
+			{
+				boolean row = node.hasAttr("row");
+
+				if (((Element) node).tagName().equals("column"))
+					value = IDFactory.next(colattrs.get("name"),row);
+				else
+					value = IDFactory.curr(colattrs.get("name"),row);
+			}
 
 			if (isVariable(name))
 			{
