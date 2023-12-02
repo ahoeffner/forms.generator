@@ -19,6 +19,7 @@ public class Generator
 	public static void main(String[] args) throws Exception
 	{
 		int len = args.length;
+		String file = args[0];
 		boolean update = true;
 
 		for (int i = 0; i < len; i++)
@@ -31,6 +32,18 @@ public class Generator
 				for (int j = i; j < args.length; j++)
 					args[j] = j < args.length - 1 ? args[j+1] : null;
 			}
+
+         if (args[i].equals("-f") || args[i].equals("--file"))
+			{
+            if (args.length > i)
+            {
+               len -= 2;
+               file = args[i+1];
+
+               for (int j = i; j < args.length; j++)
+                  args[j] = j < args.length - 2 ? args[j+2] : null;
+            }
+			}
 		}
 
 		if (len < 1 || len > 2)
@@ -39,13 +52,13 @@ public class Generator
 			System.out.println("Usage: generate [options] table [template]");
 			System.out.println();
 			System.out.println("options:");
+			System.out.println("         -f | --file : override table as filename");
 			System.out.println("         -du | --disable-update : do not update table definition");
 			System.out.println();
 			System.exit(-1);
 		}
 
 		String tab = args[0];
-		String file = args[0];
 		String tpl = len > 1 ? args[1] : "default";
 
 		if (!tpl.endsWith(".html"))
