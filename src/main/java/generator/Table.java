@@ -65,7 +65,7 @@ public class Table
 
 			def.put("from",table);
 			def.put("mapping",map);
-			def.put("abbr",Column.shortname(table));
+			def.put("alias",Column.shortname(table));
 		}
 		else
 		{
