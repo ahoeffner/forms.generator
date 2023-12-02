@@ -20,17 +20,19 @@ public class Generator
 	{
 		int len = args.length;
 		String file = args[0];
-		boolean update = true;
+		boolean update = false;
 
 		for (int i = 0; i < len; i++)
 		{
-			if (args[i].equals("-du") || args[i].equals("--disable-update"))
+			if (args[i].equals("-u") || args[i].equals("--update"))
 			{
 				len--;
-				update = false;
+				update = true;
 
 				for (int j = i; j < args.length; j++)
 					args[j] = j < args.length - 1 ? args[j+1] : null;
+
+            continue;
 			}
 
          if (args[i].equals("-f") || args[i].equals("--file"))
@@ -42,6 +44,8 @@ public class Generator
 
                for (int j = i; j < args.length; j++)
                   args[j] = j < args.length - 2 ? args[j+2] : null;
+
+               continue;
             }
 			}
 		}
@@ -53,7 +57,7 @@ public class Generator
 			System.out.println();
 			System.out.println("options:");
 			System.out.println("         -f | --file : override table as filename");
-			System.out.println("         -du | --disable-update : do not update table definition");
+			System.out.println("         -u | --update : update table definition");
 			System.out.println();
 			System.exit(-1);
 		}
@@ -66,6 +70,9 @@ public class Generator
 
 		if (!file.endsWith(".json"))
 			file += ".json";
+
+      if (!Table.exists(file))
+         update = true;
 
 		Table table = new Table(config,tab,file,update);
 

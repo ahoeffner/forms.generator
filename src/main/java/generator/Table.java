@@ -20,6 +20,12 @@ public class Table
 	private Column[] columns;
 
 
+	public static boolean exists(String file) throws Exception
+	{
+		return(Utils.exists(Generator.tables + file));
+	}
+
+
 	public Table(Config config, String table, String file, boolean update) throws Exception
 	{
 		this.config = config;
@@ -81,6 +87,9 @@ public class Table
 			if (!ignore.contains(this.columns[i].name.toLowerCase()))
 			{
 				JSONObject entry = new JSONObject();
+				entry.put("group",0);
+				entry.put("pkey",false);
+				entry.put("excl",false);
 				entry.put("size",this.columns[i].size);
 				entry.put("name",this.columns[i].name.toLowerCase());
 				entry.put("type",this.columns[i].jtype(config.mapper));
