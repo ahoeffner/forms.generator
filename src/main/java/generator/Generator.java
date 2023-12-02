@@ -21,8 +21,8 @@ public class Generator
 
 	public static void main(String[] args) throws Exception
 	{
+		String file = null;
 		int len = args.length;
-		String file = args[0];
 		boolean update = false;
 
 		for (int i = 0; i < len; i++)
@@ -67,6 +67,9 @@ public class Generator
 
 		String tab = args[0];
 		String tpl = len > 1 ? args[1] : "default";
+
+		if (file == null)
+			file = tab;
 
 		if (!tpl.endsWith(".html"))
 			tpl += ".html";
