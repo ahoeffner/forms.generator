@@ -45,18 +45,22 @@ public class Generator
 		}
 
 		String tab = args[0];
+		String file = args[0];
 		String tpl = len > 1 ? args[1] : "default";
 
 		if (!tpl.endsWith(".html"))
 			tpl += ".html";
 
-		Table table = new Table(config,tab,update);
+		if (!file.endsWith(".json"))
+			file += ".json";
+
+		Table table = new Table(config,tab,file,update);
 
 		if (table.definition() == null)
 			throw new Exception("No definition found for "+tab);
 
 		Template template = new Template(tpl);
-		template.merge(table);
+		template.merge(table,file.substring(0,file.length()-4)+"html");
 	}
 
 

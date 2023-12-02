@@ -38,7 +38,7 @@ public class Template
 	}
 
 
-	public void merge(Table table)
+	public void merge(Table table, String file) throws Exception
 	{
 		extractFieldTags();
 		extractTemplates();
@@ -63,8 +63,9 @@ public class Template
 			body.appendChild(merged);
 		}
 
+		file = Generator.output + file;
 		doc.outputSettings().indentAmount(2).outline(true);
-		System.out.println(doc);
+		Utils.save(doc.toString(),file);
 	}
 
 

@@ -20,10 +20,10 @@ public class Table
 	private Column[] columns;
 
 
-	public Table(Config config, String table, boolean update) throws Exception
+	public Table(Config config, String table, String file, boolean update) throws Exception
 	{
 		this.config = config;
-		this.file = Generator.tables + table.toLowerCase() + ".json";
+		this.file = Generator.tables + file;
 
       Utils.delete(this.file);
       System.out.println("deleting file");
