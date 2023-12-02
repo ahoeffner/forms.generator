@@ -8,13 +8,15 @@ public class Column
 	public final String 	name;
 	public final String 	type;
 	public final String 	shrt;
+	public final boolean pkey;
 	public final int 	   size;
 	public final int 	   scale;
 
-	public Column(String name, String type, int size, int scale)
+	public Column(String name, String type, boolean pkey, int size, int scale)
 	{
 		this.name = name;
 		this.type = type;
+		this.pkey = pkey;
 		this.size = size;
 		this.scale = scale;
 		this.shrt = shortname(name);

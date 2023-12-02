@@ -72,6 +72,7 @@ public class Table
 			def.put("from",table);
 			def.put("mapping",map);
 			def.put("alias",Column.shortname(table));
+			def.put("sort",this.columns[0].name);
 		}
 		else
 		{
@@ -88,8 +89,8 @@ public class Table
 			{
 				JSONObject entry = new JSONObject();
 				entry.put("group",0);
-				entry.put("pkey",false);
-				entry.put("excl",false);
+				entry.put("pkey",this.columns[i].pkey);
+				entry.put("excl",this.columns[i].pkey);
 				entry.put("size",this.columns[i].size);
 				entry.put("name",this.columns[i].name.toLowerCase());
 				entry.put("type",this.columns[i].jtype(config.mapper));
@@ -177,18 +178,22 @@ public class Table
 		}
 
 		this.columns = new Column[columns.length];
+		HashSet<String> keys = getPrimaryKey(dbtype,sesid,table);
 
 		for (int i = 0; i < this.columns.length; i++)
-			this.columns[i] = new Column(columns[i],types[i],precision[i][0],precision[i][1]);
+		{
+			boolean pkey = keys.contains(columns[i]);
+			this.columns[i] = new Column(columns[i],types[i],pkey,precision[i][0],precision[i][1]);
+		}
 
-		getPrimaryKey(dbtype,sesid,table);
 		disconnect(sesid);
 	}
 
 
-	private void getPrimaryKey(String type, String session, String table) throws Exception
+	private HashSet<String> getPrimaryKey(String type, String session, String table) throws Exception
 	{
-		String sql = "select :table";
+		HashSet<String> columns = new HashSet<String>();
+		String sql = this.config.getPrimaryKeySQL(type);
 
 		String data =
 		"{\n"+
@@ -198,7 +203,19 @@ public class Table
 		"}\n";
 
 		JSONObject json = callORDB("select",data);
-		System.out.println(json);
+
+		if (!json.getBoolean("success"))
+		{
+			System.out.println(json.toString(2));
+			throw new Exception(json.getString("message"));
+		}
+
+		JSONArray rows = json.getJSONArray("rows");
+
+		for (int i = 0; i < rows.length(); i++)
+			columns.add(rows.getJSONObject(i).getString("column_name"));
+
+		return(columns);
 	}
 
 
@@ -209,8 +226,7 @@ public class Table
 		"	\"session\": \"" + session + "\"" +
 		"}\n";
 
-		JSONObject json = callORDB("disconnect",data);
-		System.out.println(json);
+		callORDB("disconnect",data);
 	}
 
 

@@ -101,14 +101,15 @@ public class Config
 	private void getSections(String content)
 	{
 		Pattern pattern = Pattern.compile("(.*?)\\[(.*?)\\]");
-
 		Matcher matcher = pattern.matcher(content.replaceAll("\n"," ").trim());
 
 		while(matcher.find())
 		{
-			String section = content.substring(matcher.start(),matcher.end());
+			String section = content.substring(matcher.start(),matcher.end()-1);
 
 			int pos = section.indexOf("[");
+			section = section.replaceAll("\n"," ");
+
 			String type = section.substring(0,pos).trim();
 			String stmt = section.substring(pos+1).trim();
 
