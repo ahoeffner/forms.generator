@@ -108,7 +108,8 @@ public class Table
 	{
 		String data =
 		"{\n"+
-		"  \"script\": \n" +
+		"	\"disconnect\": false," +
+		"  \"batch\": \n" +
 		"   [\n" +
 		"     {\n" +
 		"       \"path\": \"/connect\",\n" +
@@ -133,14 +134,21 @@ public class Table
 		"   ]\n" +
 		"}\n";
 
-		URI uri = new URI(config.url+"/exec");
-		BodyPublisher body = HttpRequest.BodyPublishers.ofString(data);
+		JSONObject json = callORDB("batch",data);
 
-		HttpClient client = HttpClient.newHttpClient();
-		HttpRequest request = HttpRequest.newBuilder(uri).POST(body).build();
+		JSONArray steps = json.getJSONArray("steps");
+		JSONObject connect = steps.getJSONObject(0);
 
-		HttpResponse<String> response = client.send(request,HttpResponse.BodyHandlers.ofString());
-		JSONObject json = new JSONObject(new JSONTokener(response.body()));
+		if (!connect.getBoolean("success"))
+		{
+			System.out.println(json.toString(2));
+			throw new Exception(json.getString("message"));
+		}
+
+		String dbtype = connect.getString("type");
+		String sesid = connect.getString("session");
+
+		json = steps.getJSONObject(1);
 
 		if (!json.getBoolean("success"))
 		{
@@ -172,6 +180,52 @@ public class Table
 
 		for (int i = 0; i < this.columns.length; i++)
 			this.columns[i] = new Column(columns[i],types[i],precision[i][0],precision[i][1]);
+
+		getPrimaryKey(dbtype,sesid,table);
+		disconnect(sesid);
+	}
+
+
+	private void getPrimaryKey(String type, String session, String table) throws Exception
+	{
+		String sql = "select :table";
+
+		String data =
+		"{\n"+
+		"	\"session\": \"" + session + "\"," +
+		"	\"sql\": \"" + sql + "\"," +
+		"	\"bindvalues\": [{\"name\": \"table\", \"value\": \"" + table + "\", \"type\": \"string\"}]" +
+		"}\n";
+
+		JSONObject json = callORDB("select",data);
+		System.out.println(json);
+	}
+
+
+	private void disconnect(String session) throws Exception
+	{
+		String data =
+		"{\n"+
+		"	\"session\": \"" + session + "\"" +
+		"}\n";
+
+		JSONObject json = callORDB("disconnect",data);
+		System.out.println(json);
+	}
+
+
+	private JSONObject callORDB(String path, String data) throws Exception
+	{
+		URI uri = new URI(config.url+"/"+path);
+		BodyPublisher body = HttpRequest.BodyPublishers.ofString(data);
+
+		HttpClient client = HttpClient.newHttpClient();
+		HttpRequest request = HttpRequest.newBuilder(uri).POST(body).build();
+
+		HttpResponse<String> response = client.send(request,HttpResponse.BodyHandlers.ofString());
+		JSONObject json = new JSONObject(new JSONTokener(response.body()));
+
+		return(json);
 	}
 
 

@@ -14,7 +14,10 @@ public class Generator
 	public static final String output = path + File.separator + "html" + File.separator;
 	public static final String tables = path + File.separator + "tables" + File.separator;
 	public static final String templates = path + File.separator + "templates" + File.separator;
-	public static final Config config = new Config(path + File.separator + "conf"  + File.separator + "config.json");
+	public static final String configfile = path + File.separator + "conf" + File.separator + "config.json";
+	public static final String primarykey = path + File.separator + "conf" + File.separator + "primarykey.sql";
+
+	public static final Config config = new Config();
 
 	public static void main(String[] args) throws Exception
 	{
