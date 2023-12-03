@@ -25,6 +25,9 @@ public class Generator
 		int len = args.length;
 		boolean update = false;
 
+		String program = System.getenv("EXECUTABLE");
+		if (program == null) program = "Generator";
+
 		for (int i = 0; i < len; i++)
 		{
 			if (args[i].equals("-u") || args[i].equals("--update"))
@@ -56,7 +59,7 @@ public class Generator
 		if (len < 1 || len > 2)
 		{
 			System.out.println();
-			System.out.println("Usage: htmlgen [options] table [template]");
+			System.out.println("Usage: "+program+" [options] table [template]");
 			System.out.println();
 			System.out.println("options:");
 			System.out.println("         -f | --file : override table as filename");
