@@ -8,6 +8,7 @@ import java.nio.file.Path;
 public class Generator
 {
 	public static final String COLUMN = "column";
+	public static final String GROUPS = "foreach-group";
 	public static final String COLUMNS = "foreach-column";
 
 	public static final String path = findAppHome();

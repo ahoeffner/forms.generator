@@ -55,7 +55,6 @@ public class Template
 		html.appendChild(body);
 
 		this.columns.sort(new ColumnCompare(this));
-		this.columns.forEach(name -> System.out.println(name));
 
 		for (int i = 0; i < sections.size(); i++)
 		{

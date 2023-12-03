@@ -320,6 +320,7 @@ public class Table
 			String id = alias+"."+seq.pref+"."+seq.next+".";
 			if (row) id += "$row"; else id += "0";
 
+			seq.next++;
 			return(id);
 		}
 
