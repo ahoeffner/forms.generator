@@ -1,7 +1,7 @@
 package generator;
 
-import java.util.HashMap;
 import java.util.List;
+import java.util.HashMap;
 import java.util.ArrayList;
 import org.jsoup.nodes.Node;
 import org.jsoup.nodes.Element;
@@ -54,6 +54,8 @@ public class Merger
 
 	private boolean replace(Element elem, ArrayList<String> columns) throws Exception
 	{
+		System.out.println(elem);
+
 		if (elem.tagName().equals(Generator.COLUMN))
 		{
 			column(elem);
@@ -82,6 +84,12 @@ public class Merger
 
 			delete(elem);
 			return(false);
+		}
+
+		else
+
+		{
+			this.template.replace(elem,null);
 		}
 
 		return(true);

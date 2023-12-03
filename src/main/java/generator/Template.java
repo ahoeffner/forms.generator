@@ -113,6 +113,7 @@ public class Template
 	public void replace(Node node, HashMap<String,Object> colattrs)
 	{
 		List<Attribute> attrs = node.attributes().asList();
+		if (colattrs == null) colattrs = new HashMap<String,Object>();
 
 		for (Attribute attr : attrs)
 		{
