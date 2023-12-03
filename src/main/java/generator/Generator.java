@@ -44,7 +44,7 @@ public class Generator
             continue;
 			}
 
-         if (args[i].equals("-f") || args[i].equals("--file"))
+         if (args[i].equals("-a") || args[i].equals("--alias"))
 			{
             if (args.length > i)
             {
@@ -66,7 +66,7 @@ public class Generator
 			System.out.println("Usage: "+program+" [options] table [template]");
 			System.out.println();
 			System.out.println("options:");
-			System.out.println("         -f | --file : override table as filename");
+			System.out.println("         -a | --alias : table alias");
 			System.out.println("         -u | --update : update table definition");
 			System.out.println();
 			System.exit(-1);

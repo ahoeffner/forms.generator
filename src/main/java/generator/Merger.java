@@ -15,11 +15,22 @@ public class Merger
 	public Node merge(Template template, Element section)
 	{
 		this.template = template;
-		return(merge(section));
+		HashMap<String,Object> attrs;
+		ArrayList<String> columns = new ArrayList<String>();
+
+		for (String name : template.columns)
+		{
+			Boolean excl = false;
+			attrs = template.colattrs.get(name);
+			if (attrs != null) excl = (Boolean) attrs.get("excl");
+			if (excl == null || !excl) columns.add(name);
+		}
+
+		return(merge(section,columns));
 	}
 
 
-	private Node merge(Element section)
+	private Node merge(Element section, ArrayList<String> columns)
 	{
 		boolean done = false;
 
@@ -31,7 +42,7 @@ public class Merger
 			for (int i = 0; i < elements.size(); i++)
 			{
 				Element elem = elements.get(i);
-				done = replace(elem);
+				done = replace(elem,columns);
 				if (!done) break;
 			}
 		}
@@ -40,7 +51,7 @@ public class Merger
 	}
 
 
-	private boolean replace(Element elem)
+	private boolean replace(Element elem, ArrayList<String> columns)
 	{
 		if (elem.tagName().equals(Generator.COLUMN))
 		{
@@ -53,7 +64,7 @@ public class Merger
 		if (elem.attributes().hasKey(Generator.COLUMNS))
 		{
 			elem.attributes().remove(Generator.COLUMNS);
-			columns(elem);
+			columns(elem,columns);
 			return(false);
 		}
 
@@ -69,7 +80,7 @@ public class Merger
 	}
 
 
-	private void columns(Element elem)
+	private void columns(Element elem, ArrayList<String> columns)
 	{
 		Element merged = null;
 		Element template = null;
@@ -78,7 +89,7 @@ public class Merger
 		template = elem.clone();
 		merged = new Element("div");
 
-		for (String name : this.template.columns)
+		for (String name : columns)
 		{
 			this.column = name;
 			colattrs = this.template.colattrs.get(name);
@@ -86,7 +97,7 @@ public class Merger
 			Element replace = template.clone();
 			this.template.replace(replace,colattrs);
 			merged.appendChild(replace);
-			this.merge(replace);
+			this.merge(replace,columns);
 			this.column = null;
 		}
 

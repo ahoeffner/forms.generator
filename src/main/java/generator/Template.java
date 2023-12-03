@@ -6,6 +6,7 @@ import java.util.HashMap;
 import org.json.JSONArray;
 import org.json.JSONObject;
 import java.util.ArrayList;
+import java.util.Comparator;
 import org.jsoup.nodes.Node;
 import org.jsoup.nodes.Element;
 import org.jsoup.nodes.TextNode;
@@ -53,6 +54,9 @@ public class Template
 		doc.appendChild(html);
 		html.appendChild(body);
 
+		this.columns.sort(new ColumnCompare(this));
+		this.columns.forEach(name -> System.out.println(name));
+
 		for (int i = 0; i < sections.size(); i++)
 		{
 			Merger merger = new Merger();
@@ -61,7 +65,6 @@ public class Template
 
 			body.appendChild(merged);
 		}
-
 
 		file = Generator.path(file) + file + ".html";
 		doc.outputSettings().indentAmount(2).outline(true);
@@ -291,5 +294,36 @@ public class Template
 	{
 		file = Generator.templates+file;
 		return(Jsoup.parse(Utils.load(file,false)));
+	}
+
+
+	private static class ColumnCompare implements Comparator<String>
+	{
+		private Template templ;
+
+		ColumnCompare(Template templ)
+		{
+			this.templ = templ;
+		}
+
+		public int compare(String a, String b)
+		{
+			Integer g1;
+			Integer g2;
+
+			HashMap<String,Object> c1;
+			HashMap<String,Object> c2;
+
+			c1 = templ.colattrs.get(a);
+			c2 = templ.colattrs.get(b);
+
+			g1 = (Integer) c1.get("group");
+			g2 = (Integer) c2.get("group");
+
+			if (g1 == null) g1 = 0;
+			if (g2 == null) g1 = 0;
+
+			return(g1-g2);
+		}
 	}
 }
