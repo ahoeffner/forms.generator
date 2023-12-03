@@ -12,7 +12,7 @@ public class Merger
 	private String column;
 	private Template template;
 
-	public Node merge(Template template, Element section)
+	public Node merge(Template template, Element section) throws Exception
 	{
 		this.template = template;
 		HashMap<String,Object> attrs;
@@ -30,7 +30,7 @@ public class Merger
 	}
 
 
-	private Node merge(Element section, ArrayList<String> columns)
+	private Node merge(Element section, ArrayList<String> columns) throws Exception
 	{
 		boolean done = false;
 
@@ -51,7 +51,7 @@ public class Merger
 	}
 
 
-	private boolean replace(Element elem, ArrayList<String> columns)
+	private boolean replace(Element elem, ArrayList<String> columns) throws Exception
 	{
 		if (elem.tagName().equals(Generator.COLUMN))
 		{
@@ -68,19 +68,29 @@ public class Merger
 			return(false);
 		}
 
+		else
+
+		if (elem.attributes().hasKey(Generator.GROUPS))
+		{
+			elem.attributes().remove(Generator.GROUPS);
+			groups(elem);
+			return(false);
+		}
+
 		return(true);
 	}
 
 
-	private void column(Element elem)
+	private void column(Element elem) throws Exception
 	{
+		if (column == null) throw new Exception("<column> tag not within foreach-column");
 		Node field = template.fieldnodes.get(column).clone();
 		field.attributes().addAll(elem.attributes());
 		this.replace(elem,field);
 	}
 
 
-	private void columns(Element elem, ArrayList<String> columns)
+	private void columns(Element elem, ArrayList<String> columns) throws Exception
 	{
 		Element merged = null;
 		Element template = null;
@@ -111,6 +121,67 @@ public class Merger
 		}
 
 		delete(elem);
+	}
+
+
+	private void groups(Element elem) throws Exception
+	{
+		Element next = elem;
+		Element template = null;
+
+		ArrayList<ArrayList<String>> groups = group();
+		ArrayList<Node> merged = new ArrayList<Node>();
+
+		for (ArrayList<String> columns : groups)
+		{
+			template = elem.clone();
+			merged.add(merge(template,columns));
+		}
+
+		for (int i = 0; i < merged.size(); i++)
+		{
+			next.after(merged.get(i));
+			next = (Element) merged.get(i);
+		}
+
+		delete(elem);
+	}
+
+
+	private ArrayList<ArrayList<String>> group()
+	{
+		Integer group = 0;
+		Integer cgroup = 0;
+
+		HashMap<String,Object> attrs;
+		ArrayList<String> curr = new ArrayList<String>();
+		ArrayList<ArrayList<String>> groups = new ArrayList<ArrayList<String>>();
+
+		for (String name : template.columns)
+		{
+			attrs = template.colattrs.get(name);
+			group = nvl((Integer) attrs.get("group"),0);
+
+			if (group == cgroup)
+			{
+				curr.add(name);
+			}
+			else
+			{
+				if (curr.size() > 0) groups.add(curr);
+				curr = new ArrayList<String>();
+				cgroup = group;
+			}
+		}
+
+		return(groups);
+	}
+
+
+	private <T> T nvl(T value, T defval)
+	{
+		if (value != null) return((T) value);
+		return(defval);
 	}
 
 
