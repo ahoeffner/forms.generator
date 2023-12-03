@@ -1,6 +1,7 @@
 package generator;
 
 import java.util.HashMap;
+import java.util.List;
 import java.util.ArrayList;
 import org.jsoup.nodes.Node;
 import org.jsoup.nodes.Element;
@@ -64,7 +65,8 @@ public class Merger
 		if (elem.attributes().hasKey(Generator.COLUMNS))
 		{
 			elem.attributes().remove(Generator.COLUMNS);
-			columns(elem,columns);
+			Element merged = columns(elem,columns);
+			replace(elem,merged);
 			return(false);
 		}
 
@@ -73,7 +75,12 @@ public class Merger
 		if (elem.attributes().hasKey(Generator.GROUPS))
 		{
 			elem.attributes().remove(Generator.GROUPS);
-			groups(elem);
+			ArrayList<Element> merged = groups(elem);
+
+			for (int i = 0; i < merged.size(); i++)
+				elem.after(merged.get(i));
+
+			delete(elem);
 			return(false);
 		}
 
@@ -90,14 +97,19 @@ public class Merger
 	}
 
 
-	private void columns(Element elem, ArrayList<String> columns) throws Exception
+	private Element columns(Element elem, ArrayList<String> columns) throws Exception
 	{
 		Element merged = null;
 		Element template = null;
 		HashMap<String,Object> colattrs = null;
 
+		merged = copy(elem);
 		template = elem.clone();
-		merged = new Element("div");
+
+		List<Node> children = merged.childNodes();
+
+		for (int i = 0; i < children.size(); i++)
+			children.get(i).remove();
 
 		for (String name : columns)
 		{
@@ -111,40 +123,37 @@ public class Merger
 			this.column = null;
 		}
 
-		Element next = elem;
-		ArrayList<Node> children = new ArrayList<Node>(merged.childNodes());
-
-		for (int i = 0; i < children.size(); i++)
-		{
-			next.after(children.get(i));
-			next = (Element) children.get(i);
-		}
-
-		delete(elem);
+		return(merged);
 	}
 
 
-	private void groups(Element elem) throws Exception
+	private ArrayList<Element> groups(Element elem) throws Exception
 	{
-		Element next = elem;
 		Element template = null;
-
 		ArrayList<ArrayList<String>> groups = group();
-		ArrayList<Node> merged = new ArrayList<Node>();
+		ArrayList<Element> merged = new ArrayList<Element>();
 
 		for (ArrayList<String> columns : groups)
 		{
+			Element group = copy(elem);
+
 			template = elem.clone();
-			merged.add(merge(template,columns));
+			Element replace = columns(template,columns);
+
+			for (int i = 0; i < replace.children().size(); i++)
+			{
+				Element entry = replace.children().get(i);
+				Elements entries = entry.children().clone();
+
+				for (int j = 0; j < entries.size(); j++)
+					group.appendChild(entries.get(j));
+			}
+
+			merged.add(group);
 		}
 
-		for (int i = 0; i < merged.size(); i++)
-		{
-			next.after(merged.get(i));
-			next = (Element) merged.get(i);
-		}
-
-		delete(elem);
+		System.out.println(merged);
+		return(merged);
 	}
 
 
@@ -152,6 +161,7 @@ public class Merger
 	{
 		Integer group = 0;
 		Integer cgroup = 0;
+		Boolean excl = false;
 
 		HashMap<String,Object> attrs;
 		ArrayList<String> curr = new ArrayList<String>();
@@ -161,10 +171,12 @@ public class Merger
 		{
 			attrs = template.colattrs.get(name);
 			group = Utils.nvl((Integer) attrs.get("group"),0);
+			excl = Utils.nvl((Boolean) attrs.get("excl"),false);
 
 			if (group == cgroup)
 			{
-				curr.add(name);
+				//if (!excl)
+					curr.add(name);
 			}
 			else
 			{
@@ -187,5 +199,13 @@ public class Merger
 	private void replace(Node elem1, Node elem2)
 	{
 		elem1.replaceWith(elem2);
+	}
+
+
+	private Element copy(Element elem)
+	{
+		Element copy = new Element(elem.tagName());
+		copy.attributes().addAll(elem.attributes());
+		return(copy);
 	}
 }
