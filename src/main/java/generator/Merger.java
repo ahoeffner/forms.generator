@@ -13,6 +13,8 @@ public class Merger
 	private String column;
 	private Template template;
 
+	private static final String grignr = "$group$";
+
 	public Node merge(Template template, Element section) throws Exception
 	{
 		this.template = template;
@@ -27,7 +29,7 @@ public class Merger
 			if (excl == null || !excl) columns.add(name);
 		}
 
-		this.template.tempattrs.put("group","$group$");
+		this.template.tempattrs.put("group",grignr);
 		return(merge(section,columns));
 	}
 
@@ -110,8 +112,8 @@ public class Merger
 		Element template = null;
 		HashMap<String,Object> colattrs = null;
 
-		merged = copy(elem);
 		template = elem.clone();
+		merged = this.template.copy(elem);
 
 		List<Node> children = merged.childNodes();
 
@@ -122,12 +124,15 @@ public class Merger
 		{
 			this.column = name;
 			colattrs = this.template.colattrs.get(name);
+			this.template.tempattrs.put("group",colattrs.get("group"));
 
 			Element replace = template.clone();
 			this.template.replace(replace,colattrs);
 			merged.appendChild(replace);
 			this.merge(replace,columns);
 			this.column = null;
+
+			this.template.tempattrs.put("group",grignr);
 		}
 
 		return(merged);
@@ -142,10 +147,13 @@ public class Merger
 
 		for (ArrayList<String> columns : groups)
 		{
-			template = elem.clone();
-			Element group = copy(elem);
+			Integer grid = getAttributeValue(columns.get(0),"group");
+			this.template.tempattrs.put("group",grid);
 
-			this.template.replace(template,null);
+			template = elem.clone();
+			Element group = this.template.copy(elem);
+
+			this.template.replace(group,null);
 			Element replace = columns(template,columns);
 
 			for (int i = 0; i < replace.children().size(); i++)
@@ -158,6 +166,7 @@ public class Merger
 			}
 
 			merged.add(group);
+			this.template.tempattrs.put("group",grignr);
 		}
 
 		return(merged);
@@ -207,15 +216,6 @@ public class Merger
 	{
 		elem1.replaceWith(elem2);
 	}
-
-
-	private Element copy(Element elem)
-	{
-		Element copy = new Element(elem.tagName());
-		copy.attributes().addAll(elem.attributes());
-		return(copy);
-	}
-
 
 	@SuppressWarnings("unchecked")
 	private <T> T getAttributeValue(String name, String attr)

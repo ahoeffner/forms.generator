@@ -199,9 +199,6 @@ public class Template
 			if (val == null)
 				val = tempattrs.get(var.toLowerCase());
 
-			if (var.equals("group"))
-				System.out.println(val);
-
 			if (val != null)
 			{
 				value = value.substring(0,pos1) + val + value.substring(pos2+1);
@@ -214,6 +211,17 @@ public class Template
 		}
 
 		return(value.trim());
+	}
+
+
+	public Element copy(Element elem)
+	{
+		Element copy = new Element(elem.tagName());
+
+		for (Attribute attr : elem.attributes().asList())
+			copy.attributes().put(attr.getKey(),attr.getValue());
+
+		return(copy);
 	}
 
 
