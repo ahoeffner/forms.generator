@@ -26,6 +26,7 @@ public class Template
 	public final HashMap<String,Field> fields;
 	public final HashMap<String,Object> tabattrs;
 	public final HashMap<String,Node> fieldnodes;
+	public final HashMap<String,Object> tempattrs;
 	public final HashMap<String,HashMap<String,Object>> colattrs;
 
 	public Template(Config config, String file) throws Exception
@@ -37,6 +38,7 @@ public class Template
 		this.fieldnodes 	= new HashMap<String,Node>();
 		this.fields 		= new HashMap<String,Field>();
 		this.tabattrs 		= new HashMap<String,Object>();
+		this.tempattrs 	= new HashMap<String,Object>();
 		this.colattrs 		= new HashMap<String,HashMap<String,Object>>();
 	}
 
@@ -193,6 +195,12 @@ public class Template
 
 			if (val == null)
 				val = tabattrs.get(var.toLowerCase());
+
+			if (val == null)
+				val = tempattrs.get(var.toLowerCase());
+
+			if (var.equals("group"))
+				System.out.println(val);
 
 			if (val != null)
 			{

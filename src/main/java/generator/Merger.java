@@ -27,6 +27,7 @@ public class Merger
 			if (excl == null || !excl) columns.add(name);
 		}
 
+		this.template.tempattrs.put("group","$group$");
 		return(merge(section,columns));
 	}
 
@@ -54,8 +55,6 @@ public class Merger
 
 	private boolean replace(Element elem, ArrayList<String> columns) throws Exception
 	{
-		System.out.println(elem);
-
 		if (elem.tagName().equals(Generator.COLUMN))
 		{
 			column(elem);
@@ -143,9 +142,10 @@ public class Merger
 
 		for (ArrayList<String> columns : groups)
 		{
+			template = elem.clone();
 			Element group = copy(elem);
 
-			template = elem.clone();
+			this.template.replace(template,null);
 			Element replace = columns(template,columns);
 
 			for (int i = 0; i < replace.children().size(); i++)
@@ -160,7 +160,6 @@ public class Merger
 			merged.add(group);
 		}
 
-		System.out.println(merged);
 		return(merged);
 	}
 
@@ -215,5 +214,14 @@ public class Merger
 		Element copy = new Element(elem.tagName());
 		copy.attributes().addAll(elem.attributes());
 		return(copy);
+	}
+
+
+	@SuppressWarnings("unchecked")
+	private <T> T getAttributeValue(String name, String attr)
+	{
+		HashMap<String,Object> attrs = template.colattrs.get(name.toLowerCase());
+		Object value = attrs.get(attr.toLowerCase());
+		return((T) value);
 	}
 }
