@@ -8,6 +8,12 @@ import java.io.ByteArrayOutputStream;
 
 public class Utils
 {
+	public static <T> T nvl(T value, T defval)
+	{
+		if (value != null) return((T) value);
+		return(defval);
+	}
+
 	public static boolean delete(String file) throws Exception
 	{
 		return((new File(file)).delete());
@@ -52,7 +58,7 @@ public class Utils
 	{
 		File dir = new File(file).getParentFile();
 		dir.mkdirs();
-		
+
 		FileOutputStream out = new FileOutputStream(file);
 		out.write(data);
 		out.close();

@@ -18,6 +18,8 @@ import org.jsoup.select.Elements;
 
 public class Template
 {
+	private final Config config;
+
 	public final Document dom;
 	public final ArrayList<String> columns;
 	public final ArrayList<Element> sections;
@@ -26,8 +28,9 @@ public class Template
 	public final HashMap<String,Node> fieldnodes;
 	public final HashMap<String,HashMap<String,Object>> colattrs;
 
-	public Template(String file) throws Exception
+	public Template(Config config, String file) throws Exception
 	{
+		this.config			= config;
 		this.dom 			= this.load(file);
 		this.columns		= new ArrayList<String>();
 	 	this.sections 		= new ArrayList<Element>();
@@ -65,8 +68,9 @@ public class Template
 			body.appendChild(merged);
 		}
 
+		int indent = config.style("indentation");
 		file = Generator.path(file) + file + ".html";
-		doc.outputSettings().indentAmount(2).outline(true);
+		doc.outputSettings().indentAmount(indent).outline(true);
 
 		String page = doc.toString();
 

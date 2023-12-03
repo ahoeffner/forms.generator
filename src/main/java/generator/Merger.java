@@ -160,7 +160,7 @@ public class Merger
 		for (String name : template.columns)
 		{
 			attrs = template.colattrs.get(name);
-			group = nvl((Integer) attrs.get("group"),0);
+			group = Utils.nvl((Integer) attrs.get("group"),0);
 
 			if (group == cgroup)
 			{
@@ -175,13 +175,6 @@ public class Merger
 		}
 
 		return(groups);
-	}
-
-
-	private <T> T nvl(T value, T defval)
-	{
-		if (value != null) return((T) value);
-		return(defval);
 	}
 
 

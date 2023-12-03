@@ -21,15 +21,14 @@ public class Generator
 	public static String path(String file) {return(Generator.tables + File.separator + file + File.separator);}
 
 
-
 	public static void main(String[] args) throws Exception
 	{
 		String file = null;
 		int len = args.length;
 		boolean update = false;
 
-		String program = System.getenv("EXECUTABLE");
-		if (program == null) program = "Generator";
+		String program =
+			Utils.nvl(System.getenv("GeneratorClass"),"generator");
 
 		for (int i = 0; i < len; i++)
 		{
@@ -96,7 +95,7 @@ public class Generator
 		if (table.definition() == null)
 			throw new Exception("No definition found for "+tab);
 
-		Template template = new Template(tpl);
+		Template template = new Template(config,tpl);
 		template.merge(table,file);
 	}
 

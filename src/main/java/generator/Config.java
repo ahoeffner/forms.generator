@@ -1,6 +1,8 @@
 package generator;
 
 import java.util.HashMap;
+
+import org.json.JSONArray;
 import org.json.JSONObject;
 import org.json.JSONTokener;
 import java.util.regex.Matcher;
@@ -14,14 +16,17 @@ public class Config
 	public final String pwd;
 	public final String url;
 	public final HashMap<String,String> mapper;
-	public final HashMap<String,String> primarykey;
+	public final HashMap<String,String> pkeysql;
+	public final HashMap<String,Object> styles;
 
 	public Config()
 	{
+		String[] entries = null;
 		JSONObject config = null;
 
+		this.styles = new HashMap<String,Object>();
 		this.mapper = new HashMap<String,String>();
-		this.primarykey = new HashMap<String,String>();
+		this.pkeysql = new HashMap<String,String>();
 
 		this.mapper.put("string","string");
 		this.mapper.put("varchar","string");
@@ -57,20 +62,34 @@ public class Config
 		this.pwd = config.getString("pwd");
 		this.url = config.getString("url");
 
-		JSONObject map = config.getJSONObject("mapper");
+		JSONObject mapper = config.getJSONObject("mapper");
+		entries = JSONObject.getNames(mapper);
 
-		String[] types = JSONObject.getNames(map);
+		for (int i = 0; i < entries.length; i++)
+			this.mapper.put(entries[i],mapper.getString(entries[i]));
 
-		for (int i = 0; i < types.length; i++)
-			this.mapper.put(types[i],map.getString(types[i]));
+		JSONArray styles = config.getJSONArray("styling");
+
+		for (int i = 0; i < styles.length(); i++)
+		{
+			JSONObject entry = styles.optJSONObject(i);
+			entries = JSONObject.getNames(entry);
+			this.styles.put(entries[i].toLowerCase(),entry.get(entries[i]));
+		}
 
 		loadPrimaryKeySQL();
+	}
+
+	@SuppressWarnings("unchecked")
+	public <T> T style(String name)
+	{
+		return((T) styles.get(name.toLowerCase()));
 	}
 
 
 	public String getPrimaryKeySQL(String type)
 	{
-		return(primarykey.get(type.toLowerCase()));
+		return(pkeysql.get(type.toLowerCase()));
 	}
 
 
@@ -113,7 +132,7 @@ public class Config
 			String type = section.substring(0,pos).trim();
 			String stmt = section.substring(pos+1).trim();
 
-			primarykey.put(type.toLowerCase(),stmt);
+			pkeysql.put(type.toLowerCase(),stmt);
 		}
 	}
 }
