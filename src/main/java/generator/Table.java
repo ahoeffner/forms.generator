@@ -22,20 +22,20 @@ public class Table
 
 	public static boolean exists(String file) throws Exception
 	{
-		return(Utils.exists(Generator.tables + file));
+		return(Utils.exists(Generator.path(file) + file + ".json"));
 	}
 
 
 	public static boolean delete(String file) throws Exception
 	{
-		return(Utils.delete(Generator.tables + file));
+		return(Utils.delete(Generator.path(file) + file + ".json"));
 	}
 
 
 	public Table(Config config, String table, String file, boolean update) throws Exception
 	{
 		this.config = config;
-		this.file = Generator.tables + file;
+		this.file = Generator.path(file) + file + ".json";
 
       String existing = Utils.load(this.file,true);
 		if (existing != null) this.def = new JSONObject(existing);

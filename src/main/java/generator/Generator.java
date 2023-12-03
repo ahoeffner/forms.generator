@@ -11,13 +11,15 @@ public class Generator
 	public static final String COLUMNS = "foreach-column";
 
 	public static final String path = findAppHome();
-	public static final String output = path + File.separator + "html" + File.separator;
 	public static final String tables = path + File.separator + "tables" + File.separator;
 	public static final String templates = path + File.separator + "templates" + File.separator;
 	public static final String configfile = path + File.separator + "conf" + File.separator + "config.json";
 	public static final String primarykey = path + File.separator + "conf" + File.separator + "primarykey.sql";
 
 	public static final Config config = new Config();
+	public static String path(String file) {return(Generator.tables + File.separator + file + File.separator);}
+
+
 
 	public static void main(String[] args) throws Exception
 	{
@@ -38,6 +40,7 @@ public class Generator
 				for (int j = i; j < args.length; j++)
 					args[j] = j < args.length - 1 ? args[j+1] : null;
 
+				i -= 2;
             continue;
 			}
 
@@ -51,6 +54,7 @@ public class Generator
                for (int j = i; j < args.length; j++)
                   args[j] = j < args.length - 2 ? args[j+2] : null;
 
+					i -= 2;
                continue;
             }
 			}
@@ -77,11 +81,11 @@ public class Generator
 		if (!tpl.endsWith(".html"))
 			tpl += ".html";
 
-		if (!file.endsWith(".json"))
-			file += ".json";
-
       //System.out.println("deleting file");
       //Table.delete(file);
+
+		int pos = file.indexOf(".");
+		if (pos > 0) file = file.substring(0,pos);
 
       if (!Table.exists(file))
          update = true;
@@ -92,7 +96,7 @@ public class Generator
 			throw new Exception("No definition found for "+tab);
 
 		Template template = new Template(tpl);
-		template.merge(table,file.substring(0,file.length()-4)+"html");
+		template.merge(table,file);
 	}
 
 

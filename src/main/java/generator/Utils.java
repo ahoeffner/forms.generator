@@ -50,6 +50,9 @@ public class Utils
 
 	public static void save(byte[] data, String file) throws Exception
 	{
+		File dir = new File(file).getParentFile();
+		dir.mkdirs();
+		
 		FileOutputStream out = new FileOutputStream(file);
 		out.write(data);
 		out.close();

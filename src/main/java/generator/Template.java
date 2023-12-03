@@ -63,7 +63,7 @@ public class Template
 		}
 
 
-		file = Generator.output + file;
+		file = Generator.path(file) + file + ".html";
 		doc.outputSettings().indentAmount(2).outline(true);
 
 		String page = doc.toString();
