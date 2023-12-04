@@ -77,11 +77,18 @@ public class Merger
 
 		if (elem.attributes().hasKey(Generator.GROUPS))
 		{
+			Element curr = null;
+			Element next = elem;
+
 			elem.attributes().remove(Generator.GROUPS);
 			ArrayList<Element> merged = groups(elem);
 
 			for (int i = 0; i < merged.size(); i++)
-				elem.after(merged.get(i));
+			{
+				curr = merged.get(i);
+				next.after(curr);
+				next = curr;
+			}
 
 			delete(elem);
 			return(false);
