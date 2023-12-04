@@ -30,38 +30,38 @@ public class Generator
 		String program =
 			Utils.nvl(System.getenv("GeneratorClass"),"generator");
 
-		for (int i = 0; i < len; i++)
+
+		int arg = 0;
+		while(arg < len)
 		{
-			if (args[i].equals("-u") || args[i].equals("--update"))
+			System.out.println(arg+" "+args[arg]);
+
+			if (args[arg].equals("-u") || args[arg].equals("--update"))
 			{
 				len--;
 				update = true;
 
-				for (int j = i; j < args.length; j++)
+				for (int j = arg; j < args.length; j++)
 					args[j] = j < args.length - 1 ? args[j+1] : null;
 
-				i -= 2;
-				if (i < 0) i = 0;
-				
             continue;
 			}
 
-         if (args[i].equals("-a") || args[i].equals("--alias"))
+         if (args[arg].equals("-a") || args[arg].equals("--alias"))
 			{
-            if (args.length > i)
+            if (args.length > arg)
             {
                len -= 2;
-               file = args[i+1];
+               file = args[arg+1];
 
-               for (int j = i; j < args.length; j++)
+               for (int j = arg; j < args.length; j++)
                   args[j] = j < args.length - 2 ? args[j+2] : null;
-
-					i -= 2;
-					if (i < 0) i = 0;
 
                continue;
             }
 			}
+
+			arg++;
 		}
 
 		if (len < 1 || len > 2)
