@@ -244,6 +244,8 @@ public class Template
 	{
 		Element copy = new Element(elem.tagName());
 
+		if (elem.children().isEmpty()) copy.appendText(elem.text());
+
 		for (Attribute attr : elem.attributes().asList())
 			copy.attributes().put(attr.getKey(),attr.getValue());
 

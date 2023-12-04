@@ -160,7 +160,7 @@ public class Merger
 			this.template.replace(group,null);
 
 			for (int i = 0; i < children.size(); i++)
-				traverse(children.get(i),group,columns);
+				traverse(children.get(i).clone(),group,columns);
 
 			this.template.tempattrs.put("group",grignr);
 			nodes.add(group);
@@ -170,38 +170,53 @@ public class Merger
 	}
 
 
-	private boolean traverse(Element elem, Element merged, ArrayList<String> columns) throws Exception
+	private ArrayList<Element> traverse(Element elem, Element merged, ArrayList<String> columns) throws Exception
 	{
+		ArrayList<Element> group;
+
 		if (elem.tagName().equals("group"))
 		{
-			elem.attributes().remove(Generator.GROUPS);
-			ArrayList<Element> group = group(elem,columns);
-
-			for (Element entry : group)
-				merged.appendChild(entry);
-
-			return(true);
+			group = group(elem,columns);
+			System.out.println(elem.parent());
 		}
 		else
 		{
-			elem = elem.clone();
+			Elements children = elem.children();
+
+			elem = template.copy(elem);
 			this.template.replace(elem,null);
 
-			Elements children = elem.children();
+			merged.appendChild(elem);
+			merged = elem;
 
 			for (int i = 0; i < children.size(); i++)
 			{
-				boolean found = traverse(children.get(i),merged,columns);
+				elem = children.get(i);
+				this.template.replace(elem,null);
 
-				if (!found)
+				merged.appendChild(elem);
+				group = traverse(elem,elem,columns);
+
+				if (group.size() > 0)
 				{
-					merged.appendChild(elem);
+					Element curr = null;
+					Element next = elem;
+
+					for (int g = 0; g < group.size(); g++)
+					{
+						curr = group.get(g);
+						next.after(curr);
+						next = curr;
+					}
+
+					delete(elem);
 				}
 			}
 
-			System.out.println(merged);
-			return(false);
+			group = new ArrayList<Element>();
 		}
+
+		return(group);
 	}
 
 	private ArrayList<Element> group(Element elem, ArrayList<String> columns) throws Exception
