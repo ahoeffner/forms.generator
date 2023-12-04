@@ -198,7 +198,7 @@ public class Merger
 
 			if (group == cgroup)
 			{
-				//if (!excl)
+				if (!excl)
 					curr.add(name);
 			}
 			else
