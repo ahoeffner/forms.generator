@@ -145,42 +145,88 @@ public class Merger
 		return(merged);
 	}
 
-
 	private ArrayList<Element> groups(Element elem) throws Exception
 	{
-		Element template = null;
-		ArrayList<ArrayList<String>> groups = group();
-		ArrayList<Element> merged = new ArrayList<Element>();
+		Elements children = elem.children();
+		ArrayList<ArrayList<String>> groups = getGroups();
+		ArrayList<Element> nodes = new ArrayList<Element>();
 
 		for (ArrayList<String> columns : groups)
 		{
 			Integer grid = getAttributeValue(columns.get(0),"group");
 			this.template.tempattrs.put("group",grid);
 
-			template = elem.clone();
-			Element group = this.template.copy(elem);
-
+			Element group = template.copy(elem);
 			this.template.replace(group,null);
-			Element replace = columns(template,columns);
 
-			for (int i = 0; i < replace.children().size(); i++)
-			{
-				Element entry = replace.children().get(i);
-				Elements entries = entry.children().clone();
+			for (int i = 0; i < children.size(); i++)
+				traverse(children.get(i),group,columns);
 
-				for (int j = 0; j < entries.size(); j++)
-					group.appendChild(entries.get(j));
-			}
-
-			merged.add(group);
 			this.template.tempattrs.put("group",grignr);
+			nodes.add(group);
 		}
 
-		return(merged);
+		return(nodes);
 	}
 
 
-	private ArrayList<ArrayList<String>> group()
+	private boolean traverse(Element elem, Element merged, ArrayList<String> columns) throws Exception
+	{
+		if (elem.tagName().equals("group"))
+		{
+			elem.attributes().remove(Generator.GROUPS);
+			ArrayList<Element> group = group(elem,columns);
+
+			for (Element entry : group)
+				merged.appendChild(entry);
+
+			return(true);
+		}
+		else
+		{
+			elem = elem.clone();
+			this.template.replace(elem,null);
+
+			Elements children = elem.children();
+
+			for (int i = 0; i < children.size(); i++)
+			{
+				boolean found = traverse(children.get(i),merged,columns);
+
+				if (!found)
+				{
+					merged.appendChild(elem);
+				}
+			}
+
+			System.out.println(merged);
+			return(false);
+		}
+	}
+
+	private ArrayList<Element> group(Element elem, ArrayList<String> columns) throws Exception
+	{
+		Element template = null;
+
+		template = elem.clone();
+		ArrayList<Element> group = new ArrayList<Element>();
+
+		Element replace = columns(template,columns);
+
+		for (int i = 0; i < replace.children().size(); i++)
+		{
+			Element entry = replace.children().get(i);
+			Elements entries = entry.children().clone();
+
+			for (int j = 0; j < entries.size(); j++)
+				group.add(entries.get(j));
+		}
+
+		return(group);
+	}
+
+
+	private ArrayList<ArrayList<String>> getGroups()
 	{
 		Integer group = 0;
 		Integer cgroup = 0;
