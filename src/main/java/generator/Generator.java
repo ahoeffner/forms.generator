@@ -83,9 +83,6 @@ public class Generator
 		if (!tpl.endsWith(".html"))
 			tpl += ".html";
 
-      //System.out.println("deleting file");
-      //Table.delete(file);
-
 		int pos = file.indexOf(".");
 		if (pos > 0) file = file.substring(0,pos);
 

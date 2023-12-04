@@ -205,9 +205,13 @@ public class Merger
 			{
 				if (curr.size() > 0) groups.add(curr);
 				curr = new ArrayList<String>();
+				if (!excl) curr.add(name);
 				cgroup = group;
 			}
 		}
+
+		if (curr.size() > 0)
+			groups.add(curr);
 
 		return(groups);
 	}

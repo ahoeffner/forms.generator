@@ -19,6 +19,7 @@ import org.jsoup.select.Elements;
 public class Template
 {
 	private final Config config;
+	private final static String attrnull = "org.jsoup.nodes.Attribute=null";
 
 	public final Document dom;
 	public final ArrayList<String> columns;
@@ -75,6 +76,8 @@ public class Template
 		doc.outputSettings().indentAmount(indent).outline(true);
 
 		String page = doc.toString();
+
+		page = page.replaceAll("=\""+attrnull+"\"","");
 
 		page = page.replaceAll(" derived=\"false\"","");
 		page = page.replaceAll(" readonly=\"false\"","");
@@ -138,8 +141,24 @@ public class Template
 
 			if (isVariable(name))
 			{
+				boolean byval = false;
 				node.attributes().remove(name);
+
+				if (name.startsWith("${") && name.endsWith("}$"))
+				{
+					byval = true;
+					name = name.substring(2);
+					name = name.substring(0,name.length()-2);
+					name = "$"+name.trim()+"$";
+				}
+
 				value = replace(name,colattrs);
+
+				if (byval)
+				{
+					name = value;
+					value = attrnull;
+				}
 
 				// var existed
 				if (!value.equals(name))
@@ -185,7 +204,7 @@ public class Template
 		int pos2 = 0;
 
 		if (value == null)
-			value = "";
+			return(attrnull);
 
 		while(pos1 < value.length())
 		{
@@ -273,7 +292,7 @@ public class Template
 			for (int j = 0; j < element.size(); j++)
 			{
 				Node def = element.get(j);
-				String[] types = def.attributes().get("types").split(", ");
+				String[] types = def.attributes().get("types").split("[\\s,]");
 
 				for (String type : types)
 				{
@@ -310,7 +329,7 @@ public class Template
 			for (int i = 1; i < var.length()-1; i++)
 				if (var.charAt(i) == '$') return(false);
 
-			return(true);
+			return(var.indexOf(' ') < 0);
 		}
 
 		return(false);

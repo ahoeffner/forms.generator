@@ -5,12 +5,12 @@ import java.util.HashMap;
 
 public class Column
 {
-	public final String 	name;
-	public final String 	type;
-	public final String 	shrt;
-	public final boolean pkey;
-	public final int 	   size;
-	public final int 	   scale;
+	public String 	name;
+	public String 	type;
+	public String 	shrt;
+	public boolean pkey;
+	public int 	   size;
+	public int 	   scale;
 
 	public Column(String name, String type, boolean pkey, int size, int scale)
 	{

@@ -92,15 +92,20 @@ public class Table
 			if (!ignore.contains(this.columns[i].name.toLowerCase()))
 			{
 				JSONObject entry = new JSONObject();
+				String type = this.columns[i].jtype(config.mapper);
+
+				if (type.equals("date")) this.columns[i].size = 10;
+				if (type.equals("datetime")) this.columns[i].size = 19;
+
 				entry.put("group",0);
 
+				entry.put("type",type);
+				entry.put("abbr",this.columns[i].shrt);
 				entry.put("pkey",this.columns[i].pkey);
 				entry.put("excl",this.columns[i].pkey);
 				entry.put("size",this.columns[i].size);
-				entry.put("name",this.columns[i].name.toLowerCase());
-				entry.put("type",this.columns[i].jtype(config.mapper));
 				entry.put("label",initcap(this.columns[i].name));
-				entry.put("abbr",this.columns[i].shrt);
+				entry.put("name",this.columns[i].name.toLowerCase());
 
 				entry.put("derived",false);
 				entry.put("readonly",false);
