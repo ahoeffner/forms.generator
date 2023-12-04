@@ -115,21 +115,25 @@ public class Template
 	public void replace(Node node, HashMap<String,Object> colattrs)
 	{
 		List<Attribute> attrs = node.attributes().asList();
-		if (colattrs == null) colattrs = new HashMap<String,Object>();
 
 		for (Attribute attr : attrs)
 		{
 			String name = attr.getKey();
 			String value = attr.getValue();
 
-			if (value.equals("$id$"))
+			if (colattrs != null && value.equals("$id$"))
 			{
 				boolean row = node.hasAttr("row");
+				String col = (String) colattrs.get("name");
 
 				if (((Element) node).tagName().equals("column"))
-					value = IDFactory.next(colattrs.get("name"),row);
+				{
+					value = IDFactory.next(col,row);
+				}
 				else
-					value = IDFactory.curr(colattrs.get("name"),row);
+				{
+					value = IDFactory.curr(col,row);
+				}
 			}
 
 			if (isVariable(name))
@@ -190,8 +194,11 @@ public class Template
 
 			if (pos1 < 0 || pos2 < 0) break;
 
+			Object val = null;
 			String var = value.substring(pos1+1,pos2);
-			Object val = colattrs.get(var.toLowerCase());
+
+			if (colattrs != null)
+				colattrs.get(var.toLowerCase());
 
 			if (val == null)
 				val = tabattrs.get(var.toLowerCase());
