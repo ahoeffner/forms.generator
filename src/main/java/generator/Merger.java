@@ -77,20 +77,11 @@ public class Merger
 
 		if (elem.attributes().hasKey(Generator.GROUPS))
 		{
-			Element curr = null;
-			Element next = elem;
-
+			Element parent = elem.parent();
 			elem.attributes().remove(Generator.GROUPS);
-			ArrayList<Element> merged = groups(elem);
-
-			for (int i = 0; i < merged.size(); i++)
-			{
-				curr = merged.get(i);
-				next.after(curr);
-				next = curr;
-			}
-
-			delete(elem);
+			Element merged = groups(elem);
+			replace(elem,merged);
+			System.out.println(parent);
 			return(false);
 		}
 
@@ -145,9 +136,10 @@ public class Merger
 		return(merged);
 	}
 
-	private ArrayList<Element> groups(Element elem) throws Exception
+	private Element groups(Element elem) throws Exception
 	{
 		Elements children = elem.children();
+		Element merged = template.copy(elem);
 		ArrayList<ArrayList<String>> groups = getGroups();
 		ArrayList<Element> nodes = new ArrayList<Element>();
 
@@ -164,20 +156,36 @@ public class Merger
 
 			this.template.tempattrs.put("group",grignr);
 			nodes.add(group);
+			merged.appendChild(group);
 		}
 
-		return(nodes);
+		System.out.println(merged);
+		return(merged);
 	}
 
 
 	private ArrayList<Element> traverse(Element elem, Element merged, ArrayList<String> columns) throws Exception
 	{
-		ArrayList<Element> group;
+		ArrayList<Element> groups;
 
 		if (elem.tagName().equals("group"))
 		{
-			group = group(elem,columns);
-			System.out.println(elem.parent());
+			groups = group(elem,columns);
+			this.template.replace(elem,null);
+
+			if (groups.size() > 0)
+			{
+				for (int g = 0; g < groups.size(); g++)
+				{
+					Element group = groups.get(g);
+					merged.appendChild(group);
+					System.out.println();
+					System.out.println(group);
+					System.out.println();
+					System.out.println(merged);
+					System.out.println();
+				}
+			}
 		}
 		else
 		{
@@ -195,28 +203,13 @@ public class Merger
 				this.template.replace(elem,null);
 
 				merged.appendChild(elem);
-				group = traverse(elem,elem,columns);
-
-				if (group.size() > 0)
-				{
-					Element curr = null;
-					Element next = elem;
-
-					for (int g = 0; g < group.size(); g++)
-					{
-						curr = group.get(g);
-						next.after(curr);
-						next = curr;
-					}
-
-					delete(elem);
-				}
+				groups = traverse(elem,elem,columns);
 			}
 
-			group = new ArrayList<Element>();
+			groups = new ArrayList<Element>();
 		}
 
-		return(group);
+		return(groups);
 	}
 
 	private ArrayList<Element> group(Element elem, ArrayList<String> columns) throws Exception
