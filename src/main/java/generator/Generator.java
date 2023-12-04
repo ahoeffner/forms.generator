@@ -41,6 +41,8 @@ public class Generator
 					args[j] = j < args.length - 1 ? args[j+1] : null;
 
 				i -= 2;
+				if (i < 0) i = 0;
+				
             continue;
 			}
 
@@ -55,6 +57,8 @@ public class Generator
                   args[j] = j < args.length - 2 ? args[j+2] : null;
 
 					i -= 2;
+					if (i < 0) i = 0;
+
                continue;
             }
 			}
