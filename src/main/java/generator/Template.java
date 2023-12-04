@@ -198,7 +198,7 @@ public class Template
 			String var = value.substring(pos1+1,pos2);
 
 			if (colattrs != null)
-				colattrs.get(var.toLowerCase());
+				val = colattrs.get(var.toLowerCase());
 
 			if (val == null)
 				val = tabattrs.get(var.toLowerCase());
