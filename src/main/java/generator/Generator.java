@@ -34,8 +34,6 @@ public class Generator
 		int arg = 0;
 		while(arg < len)
 		{
-			System.out.println(arg+" "+args[arg]);
-
 			if (args[arg].equals("-u") || args[arg].equals("--update"))
 			{
 				len--;
