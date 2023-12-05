@@ -161,7 +161,7 @@ public class Template
 
 				value = replace(name,colattrs);
 
-				if (byval)
+				if (byval && !value.equals(name))
 				{
 					name = value;
 					value = attrnull;

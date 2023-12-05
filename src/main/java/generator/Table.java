@@ -94,9 +94,6 @@ public class Table
 				JSONObject entry = new JSONObject();
 				String type = this.columns[i].jtype(config.mapper);
 
-				if (type.equals("date")) this.columns[i].size = 10;
-				if (type.equals("datetime")) this.columns[i].size = 19;
-
 				entry.put("group",0);
 
 				entry.put("type",type);
