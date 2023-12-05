@@ -119,6 +119,13 @@ public class Template
 	{
 		List<Attribute> attrs = node.attributes().asList();
 
+		if (((Element) node).tagName().equals("replace"))
+		{
+			String tag = node.attributes().get("tag");
+			node.attributes().remove("tag");
+			((Element) node).tagName(tag);
+		}
+
 		for (Attribute attr : attrs)
 		{
 			String name = attr.getKey();
