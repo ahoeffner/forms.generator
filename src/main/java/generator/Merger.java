@@ -77,11 +77,9 @@ public class Merger
 
 		if (elem.attributes().hasKey(Generator.GROUPS))
 		{
-			Element parent = elem.parent();
 			elem.attributes().remove(Generator.GROUPS);
 			Element merged = groups(elem);
 			replace(elem,merged);
-			System.out.println(parent);
 			return(false);
 		}
 
@@ -159,7 +157,6 @@ public class Merger
 			merged.appendChild(group);
 		}
 
-		System.out.println(merged);
 		return(merged);
 	}
 
@@ -179,11 +176,6 @@ public class Merger
 				{
 					Element group = groups.get(g);
 					merged.appendChild(group);
-					System.out.println();
-					System.out.println(group);
-					System.out.println();
-					System.out.println(merged);
-					System.out.println();
 				}
 			}
 		}
@@ -195,15 +187,14 @@ public class Merger
 			this.template.replace(elem,null);
 
 			merged.appendChild(elem);
-			merged = elem;
+
 
 			for (int i = 0; i < children.size(); i++)
 			{
-				elem = children.get(i);
-				this.template.replace(elem,null);
-
+				Element child = children.get(i).clone();
+				this.template.replace(child,null);
 				merged.appendChild(elem);
-				groups = traverse(elem,elem,columns);
+				groups = traverse(child,elem,columns);
 			}
 
 			groups = new ArrayList<Element>();
