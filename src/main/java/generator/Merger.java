@@ -88,9 +88,18 @@ public class Merger
 
 		if (elem.attributes().hasKey(Generator.COLUMNS))
 		{
+			Element next = elem;
+
 			elem.attributes().remove(Generator.COLUMNS);
-			Element merged = columns(elem,columns);
-			replace(elem,merged);
+			ArrayList<Element> merged = columns(elem,columns);
+
+			for (Element entry : merged)
+			{
+				next.after(entry);
+				next = entry;
+			}
+
+			remove(elem);
 			return(false);
 		}
 
@@ -123,19 +132,14 @@ public class Merger
 	}
 
 
-	private Element columns(Element elem, ArrayList<String> columns) throws Exception
+	private ArrayList<Element> columns(Element elem, ArrayList<String> columns) throws Exception
 	{
-		Element merged = null;
 		Element template = null;
+		ArrayList<Element> merged = null;
 		HashMap<String,Object> colattrs = null;
 
 		template = elem.clone();
-		merged = this.template.copy(elem);
-
-		List<Node> children = merged.childNodes();
-
-		for (int i = 0; i < children.size(); i++)
-			children.get(i).remove();
+		merged = new ArrayList<Element>();
 
 		for (String name : columns)
 		{
@@ -145,7 +149,8 @@ public class Merger
 
 			Element replace = template.clone();
 			this.template.replace(replace,colattrs);
-			merged.appendChild(replace);
+
+			merged.add(replace);
 			this.merge(replace,columns);
 			this.column = null;
 
@@ -182,7 +187,7 @@ public class Merger
 	}
 
 
-	private ArrayList<Element> traverse(Element elem, Element merged, ArrayList<String> columns) throws Exception
+	private void traverse(Element elem, Element merged, ArrayList<String> columns) throws Exception
 	{
 		ArrayList<Element> groups;
 
@@ -215,13 +220,9 @@ public class Merger
 				Element child = children.get(i).clone();
 				this.template.replace(child,null);
 				merged.appendChild(elem);
-				groups = traverse(child,elem,columns);
+				traverse(child,elem,columns);
 			}
-
-			groups = new ArrayList<Element>();
 		}
-
-		return(groups);
 	}
 
 	private ArrayList<Element> group(Element elem, ArrayList<String> columns) throws Exception
@@ -231,11 +232,11 @@ public class Merger
 		template = elem.clone();
 		ArrayList<Element> group = new ArrayList<Element>();
 
-		Element replace = columns(template,columns);
+		ArrayList<Element> replace = columns(template,columns);
 
-		for (int i = 0; i < replace.children().size(); i++)
+		for (int i = 0; i < replace.size(); i++)
 		{
-			Element entry = replace.children().get(i);
+			Element entry = replace.get(i);
 			Elements entries = entry.children().clone();
 
 			for (int j = 0; j < entries.size(); j++)
@@ -283,9 +284,15 @@ public class Merger
 	}
 
 
-	private void replace(Node elem1, Node elem2)
+	private void remove(Node node)
 	{
-		elem1.replaceWith(elem2);
+		node.remove();
+	}
+
+
+	private void replace(Node node1, Node node2)
+	{
+		node1.replaceWith(node2);
 	}
 
 	@SuppressWarnings("unchecked")
