@@ -262,12 +262,6 @@ public class Merger
 	}
 
 
-	private void delete(Node elem)
-	{
-		elem.remove();
-	}
-
-
 	private void replace(Node elem1, Node elem2)
 	{
 		elem1.replaceWith(elem2);

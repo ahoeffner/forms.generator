@@ -75,6 +75,7 @@ public class Table
 
 			def.put("from",table);
 			def.put("mapping",map);
+			def.put("multirow",3);
 			def.put("alias",Column.shortname(table));
 			def.put("sort",this.columns[0].name);
 		}
@@ -82,6 +83,11 @@ public class Table
 		{
 			def = this.def;
 			map = def.getJSONArray("mapping");
+
+			if (!def.has("from")) def.put("from",table);
+			if (!def.has("multirow")) def.put("multirow",3);
+			if (!def.has("sort")) def.put("sort",this.columns[0].name);
+			if (!def.has("alias")) def.put("alias",Column.shortname(table));
 
 			for (int i = 0; i < map.length(); i++)
 				ignore.add(map.getJSONObject(i).getString("name"));
@@ -308,7 +314,7 @@ public class Table
 			Sequence seq = ids.get(name);
 			if (seq == null) return("unknown-column-"+name);
 
-			String id = alias+"."+seq.pref+"."+seq.next+".";
+			String id = alias+":"+seq.pref+":"+seq.next+":";
 			if (row) id += "$row"; else id += "0";
 
 			return(id);
@@ -319,7 +325,7 @@ public class Table
 			Sequence seq = ids.get(name);
 			if (seq == null) return("unknown-column-"+name);
 
-			String id = alias+"."+seq.pref+"."+seq.next+".";
+			String id = alias+":"+seq.pref+":"+seq.next+":";
 			if (row) id += "$row"; else id += "0";
 
 			seq.next++;
