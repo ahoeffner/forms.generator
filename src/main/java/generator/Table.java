@@ -1,3 +1,24 @@
+/*
+  MIT License
+
+  Copyright © 2023 Alex Høffner
+
+  Permission is hereby granted, free of charge, to any person obtaining a copy of this software
+  and associated documentation files (the “Software”), to deal in the Software without
+  restriction, including without limitation the rights to use, copy, modify, merge, publish,
+  distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the
+  Software is furnished to do so, subject to the following conditions:
+
+  The above copyright notice and this permission notice shall be included in all copies or
+  substantial portions of the Software.
+
+  THE SOFTWARE IS PROVIDED “AS IS”, WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING
+  BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND
+  NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM,
+  DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
+  FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+*/
+
 package generator;
 
 import java.net.URI;
@@ -64,13 +85,12 @@ public class Table
 
 	private void merge(String table) throws Exception
 	{
-		JSONArray map = null;
 		JSONObject def = null;
+		JSONArray map = new JSONArray();
 		HashSet<String> ignore = new HashSet<String>();
 
 		if (this.def == null)
 		{
-			map = new JSONArray();
 			def = new JSONObject();
 
 			def.put("from",table);
@@ -82,7 +102,9 @@ public class Table
 		else
 		{
 			def = this.def;
-			map = def.getJSONArray("mapping");
+
+			if (!def.has("mapping")) def.put("mapping",map);
+			else map = def.getJSONArray("mapping");
 
 			if (!def.has("from")) def.put("from",table);
 			if (!def.has("multirow")) def.put("multirow",3);
@@ -102,14 +124,22 @@ public class Table
 
 				entry.put("group",0);
 
+				entry.put("case","");
 				entry.put("type",type);
 				entry.put("abbr",this.columns[i].shrt);
-				entry.put("pkey",this.columns[i].pkey);
-				entry.put("excl",this.columns[i].pkey);
+
+				if (this.columns[i].pkey)
+				{
+					entry.put("pkey",this.columns[i].pkey);
+					entry.put("excl",this.columns[i].pkey);
+				}
+
 				entry.put("size",this.columns[i].size);
 				entry.put("label",initcap(this.columns[i].name));
 				entry.put("name",this.columns[i].name.toLowerCase());
 
+				entry.put("query",true);
+				entry.put("insert",true);
 				entry.put("derived",false);
 				entry.put("readonly",false);
 				entry.put("disabled",false);
