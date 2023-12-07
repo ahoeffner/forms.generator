@@ -141,9 +141,21 @@ public class Template
 
 		if (((Element) node).tagName().equals(Generator.REPLACE))
 		{
+			boolean replace = true;
 			String tag = node.attributes().get("tag");
-			node.attributes().remove("tag");
-			((Element) node).tagName(tag);
+
+			if (isVariable(tag))
+			{
+				String resolved = replace(tag,colattrs);
+				if (resolved.equals(tag)) replace = false;
+				tag = resolved;
+			}
+
+			if (replace)
+			{
+				node.attributes().remove("tag");
+				((Element) node).tagName(tag);
+			}
 		}
 
 		for (Attribute attr : attrs)
