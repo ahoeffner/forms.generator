@@ -75,21 +75,18 @@ public class Template
 		createFieldNodes();
 
 		Document doc = new Document("");
-		Element html = new Element("html");
-		Element body = new Element("body");
-
-		doc.appendChild(html);
-		html.appendChild(body);
-
 		this.columns.sort(new ColumnCompare(this));
 
 		for (int i = 0; i < sections.size(); i++)
 		{
 			Merger merger = new Merger();
 			Element section = sections.get(i);
-			Node merged = merger.merge(this,section);
 
-			body.appendChild(merged);
+			if (!section.tagName().equals("column-types"))
+			{
+				Node merged = merger.merge(this,section);
+				if (merged != null) doc.appendChild(merged);
+			}
 		}
 
 		int indent = config.style("indentation");
@@ -340,7 +337,7 @@ public class Template
 
 	private void extractTemplates()
 	{
-		Elements elements = dom.body().children();
+		Elements elements = dom.children();
 
 		for (int i = 0; i < elements.size(); i++)
 		{

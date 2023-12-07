@@ -42,6 +42,9 @@ public class Merger
 		HashMap<String,Object> attrs;
 		ArrayList<String> columns = new ArrayList<String>();
 
+		if (section.tagName().equals("column-types"))
+			return(null);
+
 		for (String name : template.columns)
 		{
 			Boolean excl = false;
@@ -78,6 +81,14 @@ public class Merger
 
 	private boolean replace(Element elem, ArrayList<String> columns) throws Exception
 	{
+		if (elem.tagName().equals("column-types"))
+		{
+			remove(elem);
+			return(true);
+		}
+
+		else
+
 		if (elem.tagName().equals(Generator.COLUMN))
 		{
 			column(elem);
