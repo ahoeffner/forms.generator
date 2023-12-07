@@ -52,7 +52,6 @@ public class Generator
 		String program =
 			Utils.nvl(System.getenv("GeneratorClass"),"generator");
 
-
 		int arg = 0;
 		while(arg < len)
 		{

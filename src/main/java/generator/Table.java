@@ -344,7 +344,7 @@ public class Table
 			Sequence seq = ids.get(name);
 			if (seq == null) return("unknown-column-"+name);
 
-			String id = alias+":"+seq.pref+":"+seq.next+":";
+			String id = alias+"-"+seq.pref+"-"+seq.next+"-";
 			if (row) id += "$row"; else id += "0";
 
 			return(id);
@@ -355,7 +355,7 @@ public class Table
 			Sequence seq = ids.get(name);
 			if (seq == null) return("unknown-column-"+name);
 
-			String id = alias+":"+seq.pref+":"+seq.next+":";
+			String id = alias+"-"+seq.pref+"-"+seq.next+"-";
 			if (row) id += "$row"; else id += "0";
 
 			seq.next++;
