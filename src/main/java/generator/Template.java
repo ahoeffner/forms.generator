@@ -139,7 +139,7 @@ public class Template
 	{
 		List<Attribute> attrs = node.attributes().asList();
 
-		if (((Element) node).tagName().equals("replace"))
+		if (((Element) node).tagName().equals(Generator.REPLACE))
 		{
 			String tag = node.attributes().get("tag");
 			node.attributes().remove("tag");
