@@ -118,9 +118,18 @@ public class Merger
 
 		if (elem.attributes().hasKey(Generator.GROUPS))
 		{
+			Element next = elem;
+
 			elem.attributes().remove(Generator.GROUPS);
-			Element merged = groups(elem);
-			replace(elem,merged);
+			ArrayList<Element> merged = groups(elem);
+
+			for (Element entry : merged)
+			{
+				next.after(entry);
+				next = entry;
+			}
+
+			remove(elem);
 			return(false);
 		}
 
@@ -171,10 +180,9 @@ public class Merger
 		return(merged);
 	}
 
-	private Element groups(Element elem) throws Exception
+	private ArrayList<Element> groups(Element elem) throws Exception
 	{
 		Elements children = elem.children();
-		Element merged = template.copy(elem);
 		ArrayList<ArrayList<String>> groups = getGroups();
 		ArrayList<Element> nodes = new ArrayList<Element>();
 
@@ -191,10 +199,9 @@ public class Merger
 
 			this.template.tempattrs.put("group",grignr);
 			nodes.add(group);
-			merged.appendChild(group);
 		}
 
-		return(merged);
+		return(nodes);
 	}
 
 
