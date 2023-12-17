@@ -89,6 +89,9 @@ public class Table
 		JSONArray map = new JSONArray();
 		HashSet<String> ignore = new HashSet<String>();
 
+		int pos = table.indexOf('.');
+		if (pos >= 0) table = table.substring(pos+1);
+
 		if (this.def == null)
 		{
 			def = new JSONObject();

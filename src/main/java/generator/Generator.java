@@ -105,7 +105,7 @@ public class Generator
 			tpl += ".html";
 
 		int pos = file.indexOf(".");
-		if (pos > 0) file = file.substring(0,pos);
+		if (pos > 0) file = file.substring(pos+1);
 
       if (!Table.exists(file))
          update = true;
