@@ -56,6 +56,7 @@ public class Config
 		this.mapper.put("datetime","date");
 
 		this.mapper.put("int","integer");
+		this.mapper.put("long","integer");
 		this.mapper.put("short","integer");
 		this.mapper.put("integer","integer");
 		this.mapper.put("smallint","integer");

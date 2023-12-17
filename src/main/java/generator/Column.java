@@ -78,7 +78,10 @@ public class Column
 		}
 		else
 		{
-			shrt = name.substring(0,3);
+			int len = name.length();
+
+			if (len > 3) len = 3;
+			shrt = name.substring(0,len);
 		}
 
 		return(shrt);
