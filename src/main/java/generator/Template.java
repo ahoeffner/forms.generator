@@ -65,7 +65,7 @@ public class Template
 	}
 
 
-	public void merge(Table table, String file) throws Exception
+	public void merge(Table table, String file, boolean strict) throws Exception
 	{
 		extractFieldTags();
 		extractTemplates();
@@ -103,7 +103,12 @@ public class Template
 		page = page.replaceAll(" readonly=\"false\"","");
 		page = page.replaceAll(" disabled=\"false\"","");
 
-		page = page.replaceAll(" derived=\"true\""," derived");
+		if (!strict)
+		{
+			// Currently only non-strict adjustment
+			page = page.replaceAll(" derived=\"true\""," derived");
+		}
+
 		page = page.replaceAll(" readonly=\"true\""," readonly");
 		page = page.replaceAll(" disabled=\"true\""," disabled");
 
@@ -163,7 +168,7 @@ public class Template
 			String name = attr.getKey();
 			String value = attr.getValue();
 
-			if (colattrs != null && value.equals("$id$"))
+			if (colattrs != null && value.equals("{id}"))
 			{
 				boolean row = node.hasAttr("row");
 				String col = (String) colattrs.get("name");
@@ -183,12 +188,12 @@ public class Template
 				boolean byval = false;
 				node.attributes().remove(name);
 
-				if (name.startsWith("${") && name.endsWith("}$"))
+				if (name.startsWith("{{") && name.endsWith("}}"))
 				{
 					byval = true;
 					name = name.substring(2);
 					name = name.substring(0,name.length()-2);
-					name = "$"+name.trim()+"$";
+					name = "{"+name.trim()+"}";
 				}
 
 				value = replace(name,colattrs);
@@ -202,7 +207,8 @@ public class Template
 				// var existed
 				if (!value.equals(name) && name.length() > 0)
 				{
-					name = name.replaceAll("\\$","");
+					name = name.replaceAll("\\{","");
+					name = name.replaceAll("\\}","");
 					node.attributes().put(name,value);
 				}
 			}
@@ -247,8 +253,8 @@ public class Template
 
 		while(pos1 < value.length())
 		{
-			pos1 = value.indexOf("$",pos1);
-			pos2 = value.indexOf("$",pos1+1);
+			pos1 = value.indexOf("{",pos1);
+			pos2 = value.indexOf("}",pos1+1);
 
 			if (pos1 < 0 || pos2 < 0) break;
 
@@ -365,13 +371,8 @@ public class Template
 	{
 		var = var.trim();
 
-		if (var.startsWith("$") && var.endsWith("$"))
-		{
-			for (int i = 1; i < var.length()-1; i++)
-				if (var.charAt(i) == '$') return(false);
-
+		if (var.startsWith("{") && var.endsWith("}"))
 			return(var.indexOf(' ') < 0);
-		}
 
 		return(false);
 	}

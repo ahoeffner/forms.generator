@@ -21,7 +21,6 @@
 
 package generator;
 
-import java.util.List;
 import java.util.HashMap;
 import java.util.ArrayList;
 import org.jsoup.nodes.Node;
@@ -34,7 +33,7 @@ public class Merger
 	private String column;
 	private Template template;
 
-	private static final String grignr = "$group$";
+	private static final String grignr = "{group}";
 
 	public Node merge(Template template, Element section) throws Exception
 	{

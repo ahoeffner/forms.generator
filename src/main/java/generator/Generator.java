@@ -47,7 +47,9 @@ public class Generator
 	{
 		String file = null;
 		int len = args.length;
+
 		boolean update = false;
+		boolean strict = false;
 
 		String program =
 			Utils.nvl(System.getenv("GeneratorClass"),"generator");
@@ -55,6 +57,17 @@ public class Generator
 		int arg = 0;
 		while(arg < len)
 		{
+			if (args[arg].equals("-s") || args[arg].equals("--strict"))
+			{
+				len--;
+				strict = true;
+
+				for (int j = arg; j < args.length; j++)
+					args[j] = j < args.length - 1 ? args[j+1] : null;
+
+            continue;
+			}
+
 			if (args[arg].equals("-u") || args[arg].equals("--update"))
 			{
 				len--;
@@ -91,6 +104,7 @@ public class Generator
 			System.out.println("options:");
 			System.out.println("         -a | --alias : table alias");
 			System.out.println("         -u | --update : update table definition");
+			System.out.println("         -s | --strict : generate more strict (xhtml) style");
 			System.out.println();
 			System.exit(-1);
 		}
@@ -116,7 +130,7 @@ public class Generator
 			throw new Exception("No definition found for "+tab);
 
 		Template template = new Template(config,tpl);
-		template.merge(table,file);
+		template.merge(table,file,strict);
 	}
 
 
