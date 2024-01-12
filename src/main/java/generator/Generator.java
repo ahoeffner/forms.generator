@@ -48,6 +48,7 @@ public class Generator
 		String file = null;
 		int len = args.length;
 
+		boolean react = false;
 		boolean update = false;
 		boolean strict = false;
 
@@ -67,6 +68,20 @@ public class Generator
 
             continue;
 			}
+
+			if (args[arg].equals("-r") || args[arg].equals("--react"))
+			{
+				len--;
+
+				react = true;
+				strict = true;
+
+				for (int j = arg; j < args.length; j++)
+					args[j] = j < args.length - 1 ? args[j+1] : null;
+
+            continue;
+			}
+
 
 			if (args[arg].equals("-u") || args[arg].equals("--update"))
 			{
@@ -104,6 +119,7 @@ public class Generator
 			System.out.println("options:");
 			System.out.println("         -a | --alias : table alias");
 			System.out.println("         -u | --update : update table definition");
+			System.out.println("         -r | --react  : generate react style");
 			System.out.println("         -s | --strict : generate more strict (xhtml) style");
 			System.out.println();
 			System.exit(-1);
@@ -130,7 +146,7 @@ public class Generator
 			throw new Exception("No definition found for "+tab);
 
 		Template template = new Template(config,tpl);
-		template.merge(table,file,strict);
+		template.merge(table,file,strict,react);
 	}
 
 
