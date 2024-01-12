@@ -261,10 +261,12 @@ public class Table
 			throw new Exception(json.getString("message"));
 		}
 
+		String cname = "column_name";
 		JSONArray rows = json.getJSONArray("rows");
+		if (!rows.getJSONObject(0).has(cname)) cname = cname.toUpperCase();
 
 		for (int i = 0; i < rows.length(); i++)
-			columns.add(rows.getJSONObject(i).getString("column_name"));
+			columns.add(rows.getJSONObject(i).getString(cname));
 
 		return(columns);
 	}

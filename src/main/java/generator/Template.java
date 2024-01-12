@@ -29,6 +29,8 @@ import org.json.JSONObject;
 import java.util.ArrayList;
 import java.util.Comparator;
 import org.jsoup.nodes.Node;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 import org.jsoup.nodes.Element;
 import org.jsoup.nodes.TextNode;
 import org.jsoup.nodes.Document;
@@ -111,6 +113,19 @@ public class Template
 
 		page = page.replaceAll(" readonly=\"true\""," readonly");
 		page = page.replaceAll(" disabled=\"true\""," disabled");
+
+		if (strict)
+		{
+			int off = 0;
+			Pattern pattern = Pattern.compile("<input (.*?)>");
+			Matcher matcher = pattern.matcher(page);
+
+			while(matcher.find())
+			{
+				int end = matcher.end() + off++;
+				page = page.substring(0,end-1)+"/"+page.substring(end-1);
+			}
+		}
 
 		Utils.save(page,file);
 	}
