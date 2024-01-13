@@ -67,7 +67,7 @@ public class Template
 	}
 
 
-	public void merge(Table table, String file, boolean strict, boolean react) throws Exception
+	public void merge(Table table, String file, boolean strict) throws Exception
 	{
 		extractFieldTags();
 		extractTemplates();
@@ -97,7 +97,8 @@ public class Template
 
 		String page = doc.toString();
 
-		page = page.replaceAll("=\""+attrnull+"\"","");
+		if (!strict) page = page.replaceAll("=\""+attrnull+"\"","");
+		else page = page.replaceAll("=\""+attrnull+"\"","=\"true\"");
 
 		page = page.replaceAll(" query=\"true\"","");
 		page = page.replaceAll(" insert=\"true\"","");
@@ -113,30 +114,6 @@ public class Template
 
 		page = page.replaceAll(" readonly=\"true\""," readonly");
 		page = page.replaceAll(" disabled=\"true\""," disabled");
-
-		if (strict)
-		{
-			int off = 0;
-			Pattern pattern = Pattern.compile("<input (.*?)>");
-			Matcher matcher = pattern.matcher(page);
-
-			while(matcher.find())
-			{
-				int end = matcher.end() + off++;
-				page = page.substring(0,end-1)+"/"+page.substring(end-1);
-			}
-
-			page = page.replaceAll(" upper "," upper=\"true\" ");
-			page = page.replaceAll(" lower "," lower=\"true\" ");
-			page = page.replaceAll(" initcap "," initcap=\"true\" ");
-		}
-
-		if (react)
-		{
-			page = page.replaceAll(" htmlfor="," htmlFor=");
-			page = page.replaceAll(" tabindex="," tabIndex=");
-			page = page.replaceAll(" classname="," className=");
-		}
 
 		Utils.save(page,file);
 	}
