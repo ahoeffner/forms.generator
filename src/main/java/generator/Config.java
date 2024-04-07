@@ -98,7 +98,15 @@ public class Config
 			this.styles.put(entries[i].toLowerCase(),entry.get(entries[i]));
 		}
 
-		loadPrimaryKeySQL();
+		JSONArray sources = config.getJSONArray("primarykeys");
+
+		for (int i = 0; i < sources.length(); i++)
+		{
+			JSONObject entry = sources.optJSONObject(i);
+			String type = entry.getString("type").toLowerCase();
+			String source = entry.getString("source").toLowerCase();
+			pkeysql.put(type,source);
+		}
 	}
 
 	@SuppressWarnings("unchecked")
@@ -108,52 +116,8 @@ public class Config
 	}
 
 
-	public String getPrimaryKeySQL(String type)
+	public String getPrimaryKeySource(String type)
 	{
 		return(pkeysql.get(type.toLowerCase()));
-	}
-
-
-	private void loadPrimaryKeySQL()
-	{
-		String content = null;
-
-		try
-		{
-			byte[] data = new byte[4094];
-			FileInputStream in = new FileInputStream(Generator.primarykey);
-
-			int read = in.read(data);
-			content = new String(data,0,read);
-
-			in.close();
-		}
-		catch (Exception e)
-		{
-			e.printStackTrace();
-			System.exit(-1);
-		}
-
-		getSections(content);
-	}
-
-
-	private void getSections(String content)
-	{
-		Pattern pattern = Pattern.compile("(.*?)\\[(.*?)\\]");
-		Matcher matcher = pattern.matcher(content.replaceAll("\n"," ").trim());
-
-		while(matcher.find())
-		{
-			String section = content.substring(matcher.start(),matcher.end()-1);
-
-			int pos = section.indexOf("[");
-			section = section.replaceAll("\n"," ");
-
-			String type = section.substring(0,pos).trim();
-			String stmt = section.substring(pos+1).trim();
-
-			pkeysql.put(type.toLowerCase(),stmt);
-		}
 	}
 }

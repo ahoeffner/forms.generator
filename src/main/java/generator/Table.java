@@ -159,32 +159,25 @@ public class Table
 	private void describe(String table) throws Exception
 	{
 		String data =
-		"{\n"+
-		"	\"disconnect\": false," +
-		"  \"batch\": \n" +
-		"   [\n" +
-		"     {\n" +
-		"       \"path\": \"/connect\",\n" +
-		"       \"payload\":\n" +
-		"        {\n" +
-		"           \"auth.method\": \"database\",\n" +
-		"           \"username\" : \"" + config.usr+"\",\n" +
-		"           \"auth.secret\" : \"" + config.pwd+"\",\n" +
-		"           \"scope\": \"dedicated\"\n" +
-		"        }\n" +
-		"      }\n" +
-		"      ,\n" +
-		"      {\n" +
-		"       \"path\": \"/select\",\n" +
-		"       \"payload\":\n" +
-		"        {\n" +
-		"           \"compact\": \"true\",\n" +
-		"           \"describe\" : \"true\",\n" +
-		"           \"sql\" : \"select * from "+table+" where 1 = 2\"\n" +
-		"        }\n" +
-		"      }\n" +
-		"   ]\n" +
-		"}\n";
+		"{" +
+		"    \"request\": \"batch\"," +
+		"    \"disconnect\": false," +
+		"    \"steps\": [" +
+		"        {" +
+		"            \"type\": \"connect\"," +
+		"            \"request\": \"session\"," +
+		"            \"scope\": \"transaction\"," +
+		"            \"method\": \"database\"," +
+		"            \"username\": \"hr\"," +
+		"            \"password\": \"hr\"" +
+		"        }" +
+		"        ," +
+		"        {" +
+		"            \"request\": \"describe\"," +
+		"            \"source\": \"countries\"" +
+		"        }" +
+		"    ]" +
+		"}";
 
 		JSONObject json = callORDB("batch",data);
 
@@ -200,13 +193,13 @@ public class Table
 		String dbtype = connect.getString("type");
 		String sesid = connect.getString("session");
 
-		json = steps.getJSONObject(1);
-
 		if (!json.getBoolean("success"))
 		{
 			System.out.println(json.toString(2));
 			throw new Exception(json.getString("message"));
 		}
+
+		json = steps.getJSONObject(1);
 
 		JSONArray typs = json.getJSONArray("types");
 		JSONArray cols = json.getJSONArray("columns");
@@ -244,14 +237,16 @@ public class Table
 	private HashSet<String> getPrimaryKey(String type, String session, String table) throws Exception
 	{
 		HashSet<String> columns = new HashSet<String>();
-		String sql = this.config.getPrimaryKeySQL(type);
+		String source = this.config.getPrimaryKeySource(type);
 
 		String data =
-		"{\n"+
-		"	\"session\": \"" + session + "\"," +
-		"	\"sql\": \"" + sql + "\"," +
-		"	\"bindvalues\": [{\"name\": \"table\", \"value\": \"" + table + "\", \"type\": \"string\"}]" +
-		"}\n";
+		"{" +
+		"    \"request\": \"query\"," +
+		"    \"session\": \""+session+"\"," +
+		"    \"columns\": [\"*\"]," +
+		"    \"source\": \""+source+"\"," +
+		"    \"bindvalues\": [{\"name\": \"table\", \"value\": \""+table+"\"}]" +
+		"}";
 
 		JSONObject json = callORDB("select",data);
 
@@ -275,9 +270,11 @@ public class Table
 	private void disconnect(String session) throws Exception
 	{
 		String data =
-		"{\n"+
+		"{"+
+		"  \"request\": \"session\"" +
+		"  \"type\": \"disconnect\"" +
 		"	\"session\": \"" + session + "\"" +
-		"}\n";
+		"}";
 
 		callORDB("disconnect",data);
 	}
